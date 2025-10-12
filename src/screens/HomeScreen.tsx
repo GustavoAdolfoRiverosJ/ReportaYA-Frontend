@@ -1,41 +1,67 @@
 // src/screens/HomeScreen.tsx
-import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, StyleSheet } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import React from 'react';
+import { View, Text, FlatList, StatusBar } from 'react-native';
+import LinearGradient from 'react-native-linear-gradient';
+import { styles } from '../styles/HomeScreen.styles';
 
-// Simulación de datos
 const mockReports = [
-  { id: 1, titulo: "Bache en Av. Arequipa", tipo: "infraestructura", estado: "PENDIENTE", fecha: "2025-04-01" },
-  { id: 2, titulo: "Basura acumulada en parque", tipo: "residuos", estado: "PROCESO", fecha: "2025-04-05" },
+  { id: '1', titulo: 'Bache en Av. Principal', tipo: 'infraestructura', estado: 'Pendiente', fecha: '28 jun 2025', ubicacion: 'Av. Principal 123' },
+  { id: '2', titulo: 'Poste en mal estado', tipo: 'infraestructura', estado: 'Resuelto', fecha: '02 mayo 2025', ubicacion: 'Av. Republica 234' },
+  { id: '3', titulo: 'Basura en Parque Kennedy', tipo: 'residuos', estado: 'En proceso', fecha: '15 jul 2025', ubicacion: 'Parque Kennedy' },
+  { id: '4', titulo: 'Semáforo malogrado', tipo: 'otros', estado: 'Pendiente', fecha: '01 ago 2025', ubicacion: 'Cruce de Av. Arequipa' },
 ];
 
 const HomeScreen = () => {
-  const navigation = useNavigation();
+  const getStatusStyle = (estado: string) => {
+    switch (estado) {
+      case 'Pendiente': return styles.statusPendiente;
+      case 'En proceso': return styles.statusProceso;
+      case 'Resuelto': return styles.statusResuelto;
+      default: return {};
+    }
+  };
+
+  const getBorderColor = (estado: string) => {
+    switch (estado) {
+      case 'Pendiente': return '#ff6b6b';
+      case 'En proceso': return '#ffa500';
+      case 'Resuelto': return '#4caf50';
+      default: return '#ddd';
+    }
+  };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Mis Reportes</Text>
-      <FlatList
-        data={mockReports}
-        keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item }) => (
-          <View style={styles.reportItem}>
-            <Text style={styles.reportTitle}>{item.titulo}</Text>
-            <Text>Tipo: {item.tipo}</Text>
-            <Text>Estado: {item.estado}</Text>
-            <Text>Fecha: {item.fecha}</Text>
-          </View>
-        )}
-      />
-    </View>
+    <LinearGradient colors={['#a27eff', '#6a9fff']} style={styles.gradient}>
+      <StatusBar barStyle="light-content" />
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <Text style={styles.headerText}>Mis Reportes</Text>
+        </View>
+
+        <View style={styles.card}>
+          <FlatList
+            data={mockReports}
+            keyExtractor={(item) => item.id}
+            renderItem={({ item }) => (
+              <View style={[styles.reportCard, { borderLeftColor: getBorderColor(item.estado) }]}>
+                <View style={styles.reportContent}>
+                  <Text style={styles.reportTitle}>{item.titulo}</Text>
+                  <View style={styles.statusContainer}>
+                    <Text style={styles.reportInfo}>Estado:</Text>
+                    <View style={[styles.statusBadge, getStatusStyle(item.estado)]}>
+                      <Text style={styles.statusBadgeText}>{item.estado}</Text>
+                    </View>
+                  </View>
+                  <Text style={styles.reportInfo}>Fecha: {item.fecha}</Text>
+                  <Text style={styles.reportInfo}>Ubicación: {item.ubicacion}</Text>
+                </View>
+              </View>
+            )}
+          />
+        </View>
+      </View>
+    </LinearGradient>
   );
 };
-
-const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20 },
-  title: { fontSize: 24, fontWeight: 'bold', marginBottom: 20 },
-  reportItem: { padding: 15, borderWidth: 1, borderColor: '#ddd', borderRadius: 8, marginBottom: 10 },
-  reportTitle: { fontSize: 16, fontWeight: 'bold' },
-});
 
 export default HomeScreen;
