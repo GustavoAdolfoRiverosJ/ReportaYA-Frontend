@@ -1,7 +1,9 @@
 // src/screens/Auth/RegisterScreen.tsx
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Alert, StatusBar } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import LinearGradient from 'react-native-linear-gradient';
+import { styles } from '../../styles/RegisterScreen.styles';
 
 const RegisterScreen = () => {
   const [nombres, setNombres] = useState('');
@@ -16,77 +18,50 @@ const RegisterScreen = () => {
       Alert.alert('Error', 'Todos los campos son obligatorios');
       return;
     }
-
     if (contrasena !== repeticion) {
       Alert.alert('Error', 'Las contraseñas no coinciden');
       return;
     }
-
-    if (contrasena.length < 6) {
-      Alert.alert('Error', 'La contraseña debe tener al menos 6 caracteres');
-      return;
-    }
-
-    // Simulación de registro exitoso
     Alert.alert('Éxito', '¡Registro completado!');
     navigation.navigate('Login' as never);
   };
 
   return (
-    <View style={{ flex: 1, justifyContent: 'center', padding: 20 }}>
-      <Text style={{ fontSize: 24, fontWeight: 'bold', marginBottom: 20, textAlign: 'center' }}>ReportaYA</Text>
+    <LinearGradient colors={['#a27eff', '#6a9fff']} style={styles.container}>
+      <StatusBar barStyle="light-content" />
 
-      <TextInput
-        placeholder="Nombres"
-        value={nombres}
-        onChangeText={setNombres}
-        style={{ borderWidth: 1, padding: 10, marginBottom: 10, borderRadius: 8 }}
-      />
+      <Text style={styles.title}>ReportaYA</Text>
 
-      <TextInput
-        placeholder="Apellidos"
-        value={apellidos}
-        onChangeText={setApellidos}
-        style={{ borderWidth: 1, padding: 10, marginBottom: 10, borderRadius: 8 }}
-      />
+      <View style={styles.card}>
+        <View style={styles.tabContainer}>
+          <TouchableOpacity onPress={() => navigation.navigate('Login' as never)}>
+            <Text style={styles.tab}>Iniciar Sesión</Text>
+          </TouchableOpacity>
+          <TouchableOpacity>
+            <Text style={[styles.tab, styles.activeTab]}>Registrarse</Text>
+          </TouchableOpacity>
+        </View>
 
-      <TextInput
-        placeholder="Correo Electrónico"
-        value={correo}
-        onChangeText={setCorreo}
-        style={{ borderWidth: 1, padding: 10, marginBottom: 10, borderRadius: 8 }}
-      />
+        <Text style={styles.label}>Nombres:</Text>
+        <TextInput value={nombres} onChangeText={setNombres} style={styles.input} />
 
-      <TextInput
-        placeholder="Contraseña"
-        secureTextEntry
-        value={contrasena}
-        onChangeText={setContrasena}
-        style={{ borderWidth: 1, padding: 10, marginBottom: 10, borderRadius: 8 }}
-      />
+        <Text style={styles.label}>Apellidos:</Text>
+        <TextInput value={apellidos} onChangeText={setApellidos} style={styles.input} />
 
-      <TextInput
-        placeholder="Repite tu contraseña"
-        secureTextEntry
-        value={repeticion}
-        onChangeText={setRepeticion}
-        style={{ borderWidth: 1, padding: 10, marginBottom: 10, borderRadius: 8 }}
-      />
+        <Text style={styles.label}>Correo Electrónico:</Text>
+        <TextInput value={correo} onChangeText={setCorreo} style={styles.input} keyboardType="email-address" autoCapitalize="none" />
 
-      <TouchableOpacity
-        onPress={handleRegister}
-        style={{ backgroundColor: '#9c4dff', padding: 15, borderRadius: 8, alignItems: 'center' }}
-      >
-        <Text style={{ color: 'white', fontWeight: 'bold' }}>Registrarse</Text>
-      </TouchableOpacity>
+        <Text style={styles.label}>Contraseña:</Text>
+        <TextInput secureTextEntry value={contrasena} onChangeText={setContrasena} style={styles.input} />
 
-      <TouchableOpacity
-        onPress={() => navigation.navigate('Login' as never)}
-        style={{ marginTop: 10, alignItems: 'center' }}
-      >
-        <Text style={{ color: '#666' }}>¿Ya tienes cuenta? Inicia sesión</Text>
-      </TouchableOpacity>
-    </View>
+        <Text style={styles.label}>Repite tu contraseña:</Text>
+        <TextInput secureTextEntry value={repeticion} onChangeText={setRepeticion} style={styles.input} />
+
+        <TouchableOpacity onPress={handleRegister} style={styles.registerButton}>
+          <Text style={styles.registerButtonText}>Registrarse</Text>
+        </TouchableOpacity>
+      </View>
+    </LinearGradient>
   );
 };
 

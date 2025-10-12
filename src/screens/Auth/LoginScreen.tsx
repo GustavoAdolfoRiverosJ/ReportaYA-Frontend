@@ -1,7 +1,9 @@
 // src/screens/Auth/LoginScreen.tsx
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Alert, StatusBar } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import LinearGradient from 'react-native-linear-gradient';
+import { styles } from '../../styles/LoginScreen.styles';
 
 const LoginScreen = () => {
   const [correo, setCorreo] = useState('');
@@ -17,7 +19,6 @@ const LoginScreen = () => {
     // Simulación de login exitoso
     if (correo === 'user@example.com' && contrasena === 'password') {
       Alert.alert('Éxito', '¡Inicio de sesión exitoso!');
-      // Aquí iría la lógica real (API, JWT, etc.)
       navigation.navigate('MainTabs' as never);
     } else {
       Alert.alert('Error', 'Correo o contraseña inválidos');
@@ -25,45 +26,50 @@ const LoginScreen = () => {
   };
 
   return (
-    <View style={{ flex: 1, justifyContent: 'center', padding: 20 }}>
-      <Text style={{ fontSize: 24, fontWeight: 'bold', marginBottom: 20, textAlign: 'center' }}>ReportaYA</Text>
+    <LinearGradient colors={['#a27eff', '#6a9fff']} style={styles.container}>
+      <StatusBar barStyle="light-content" />
 
-      <TextInput
-        placeholder="Correo Electrónico"
-        value={correo}
-        onChangeText={setCorreo}
-        style={{ borderWidth: 1, padding: 10, marginBottom: 10, borderRadius: 8 }}
-      />
+      <Text style={styles.title}>ReportaYA</Text>
 
-      <TextInput
-        placeholder="Contraseña"
-        secureTextEntry
-        value={contrasena}
-        onChangeText={setContrasena}
-        style={{ borderWidth: 1, padding: 10, marginBottom: 10, borderRadius: 8 }}
-      />
+      <View style={styles.card}>
+        <View style={styles.tabContainer}>
+          <TouchableOpacity>
+            <Text style={[styles.tab, styles.activeTab]}>Iniciar Sesión</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => navigation.navigate('Register' as never)}>
+            <Text style={styles.tab}>Registrarse</Text>
+          </TouchableOpacity>
+        </View>
 
-      <TouchableOpacity
-        onPress={handleLogin}
-        style={{ backgroundColor: '#9c4dff', padding: 15, borderRadius: 8, alignItems: 'center' }}
-      >
-        <Text style={{ color: 'white', fontWeight: 'bold' }}>Iniciar Sesión</Text>
-      </TouchableOpacity>
+        <Text style={styles.label}>Correo Electronico:</Text>
+        <TextInput
+          value={correo}
+          onChangeText={setCorreo}
+          style={styles.input}
+          keyboardType="email-address"
+          autoCapitalize="none"
+        />
 
-      <TouchableOpacity
-        onPress={() => navigation.navigate('Register' as never)}
-        style={{ marginTop: 10, alignItems: 'center' }}
-      >
-        <Text style={{ color: '#666' }}>¿No tienes cuenta? Regístrate</Text>
-      </TouchableOpacity>
+        <Text style={styles.label}>Contraseña:</Text>
+        <TextInput
+          secureTextEntry
+          value={contrasena}
+          onChangeText={setContrasena}
+          style={styles.input}
+        />
 
-      <TouchableOpacity
-        onPress={() => Alert.alert('Recuperación', 'Función no implementada aún')}
-        style={{ marginTop: 10, alignItems: 'center' }}
-      >
-        <Text style={{ color: '#666' }}>¿Olvidaste tu contraseña?</Text>
-      </TouchableOpacity>
-    </View>
+        <TouchableOpacity onPress={handleLogin} style={styles.loginButton}>
+          <Text style={styles.loginButtonText}>Iniciar Sesión</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          onPress={() => Alert.alert('Recuperación', 'Función no implementada aún')}
+          style={styles.forgotButton}
+        >
+          <Text style={styles.forgotButtonText}>¿Olvidaste tu contraseña?</Text>
+        </TouchableOpacity>
+      </View>
+    </LinearGradient>
   );
 };
 
