@@ -8,12 +8,14 @@ import LinearGradient from 'react-native-linear-gradient';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { styles } from '../../styles/ReportScreen.styles';
 import reportScreenController, { ReportFormData } from './ReportScreen.controller';
+import { useReportes } from '../../context/ReportesContext';
 
 const ReportScreen = () => {
   const [form, setForm] = useState<ReportFormData>({ tipo: '', descripcion: '', ubicacion: null, imagen: null });
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const navigation = useNavigation();
+  const { agregarReporte } = useReportes();
 
   const requestLocationPermission = async () => {
     if (Platform.OS === 'android') {
@@ -149,11 +151,12 @@ const ReportScreen = () => {
 
     setIsLoading(true);
     
-    const success = await reportScreenController.enviarReporte(form);
+    // ✨ Pasar el callback para agregar el reporte a la memoria
+    const reporteCreado = await reportScreenController.enviarReporte(form, agregarReporte);
     
     setIsLoading(false);
 
-    if (success) {
+    if (reporteCreado) {
       setShowSuccessModal(true);
       setTimeout(() => {
         setShowSuccessModal(false);

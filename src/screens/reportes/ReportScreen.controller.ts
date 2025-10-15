@@ -1,7 +1,7 @@
 // src/screens/reportes/ReportScreen.controller.ts
 import { Alert } from 'react-native';
 import servicioReportes from '../../servicios/ServicioReportes';
-import { CrearReporteRequest } from '../../types';
+import { CrearReporteRequest, ReporteResponse } from '../../types';
 
 export interface ReportFormData {
   tipo: '' | 'infraestructura' | 'residuos' | 'otros';
@@ -14,14 +14,18 @@ class ReportScreenController {
   /**
    * Enviar el reporte a la API
    * @param form - Datos del formulario
-   * @returns Promise<boolean> - true si se envió correctamente, false si hubo error
+   * @param agregarReporteCallback - Callback para agregar el reporte al contexto
+   * @returns Promise<ReporteResponse | null> - El reporte creado o null si hubo error
    */
-  async enviarReporte(form: ReportFormData): Promise<boolean> {
+  async enviarReporte(
+    form: ReportFormData, 
+    agregarReporteCallback?: (reporte: ReporteResponse) => void
+  ): Promise<ReporteResponse | null> {
     try {
       // Validaciones
       if (!form.tipo || !form.ubicacion || form.descripcion.length < 10) {
         Alert.alert('Error', 'Por favor, completa todos los campos requeridos.');
-        return false;
+        return null;
       }
 
       // Mapear el tipo a un título descriptivo
@@ -48,11 +52,17 @@ class ReportScreenController {
       const respuesta = await servicioReportes.crearReporte(reporteData);
       
       console.log('Reporte creado exitosamente:', respuesta);
-      return true;
+      
+      // ✨ Agregar el reporte al contexto para que aparezca en HomeScreen
+      if (agregarReporteCallback) {
+        agregarReporteCallback(respuesta);
+      }
+      
+      return respuesta;
     } catch (error: any) {
       console.error('Error al enviar reporte:', error);
       Alert.alert('Error', error.message || 'No se pudo enviar el reporte. Intenta nuevamente.');
-      return false;
+      return null;
     }
   }
 

@@ -5,26 +5,28 @@
  */
 export interface Ciudadano {
   id?: number;                    // Opcional al crear, presente en respuesta
+  usuario: string;                // OBLIGATORIO - Único
   nombres: string;                // OBLIGATORIO
   apellidos: string;              // OBLIGATORIO
   dni: string;                    // OBLIGATORIO - Único
   telefono: string;               // OBLIGATORIO
   correo: string;                 // OBLIGATORIO - Único
-  usuario: string;                // OBLIGATORIO - Único
   contrasena?: string;            // Opcional (solo al crear/actualizar, no en respuestas)
+  activo: boolean;                // Estado del ciudadano
 }
 
 /**
  * Datos para crear un nuevo ciudadano
  */
 export interface CrearCiudadanoRequest {
+  usuario: string;                // OBLIGATORIO - Único
   nombres: string;                // OBLIGATORIO
   apellidos: string;              // OBLIGATORIO
   dni: string;                    // OBLIGATORIO - Único
   telefono: string;               // OBLIGATORIO
   correo: string;                 // OBLIGATORIO - Único
-  usuario: string;                // OBLIGATORIO - Único
   contrasena: string;             // OBLIGATORIO
+  activo: boolean;                // Estado del ciudadano (default: true)
 }
 
 /**
@@ -32,12 +34,13 @@ export interface CrearCiudadanoRequest {
  */
 export interface CiudadanoResponse {
   id: number;                     // Siempre presente en respuesta
+  usuario: string;
   nombres: string;
   apellidos: string;
   dni: string;
   telefono: string;
   correo: string;
-  usuario: string;
+  activo: boolean;
   // contrasena nunca se devuelve en respuestas
 }
 
@@ -45,11 +48,14 @@ export interface CiudadanoResponse {
  * Datos para actualizar un ciudadano
  */
 export interface ActualizarCiudadanoRequest {
+  usuario?: string;
   nombres?: string;
   apellidos?: string;
+  dni?: string;
   telefono?: string;
   correo?: string;
   contrasena?: string;            // Opcional - Solo si se desea cambiar
+  activo?: boolean;
 }
 
 /**

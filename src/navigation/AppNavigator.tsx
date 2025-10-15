@@ -7,7 +7,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 
 import LoginScreen from '../screens/Auth/LoginScreen';
 import RegisterScreen from '../screens/Auth/RegisterScreen';
-import HomeScreen from '../screens/HomeScreen';
+import HomeScreen from '../screens/Home/HomeScreen';
 import MapScreen from '../screens/MapScreen';
 import ReportScreen from '../screens/reportes/ReportScreen';
 
