@@ -9,7 +9,7 @@ import LoginScreen from '../screens/Auth/LoginScreen';
 import RegisterScreen from '../screens/Auth/RegisterScreen';
 import HomeScreen from '../screens/HomeScreen';
 import MapScreen from '../screens/MapScreen';
-import ReportScreen from '../screens/ReportScreen';
+import ReportScreen from '../screens/reportes/ReportScreen';
 
 type RootStackParamList = {
   Login: undefined;
