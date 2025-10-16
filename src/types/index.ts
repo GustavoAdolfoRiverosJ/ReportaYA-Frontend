@@ -12,3 +12,18 @@ export * from './reporte.types';
 
 // Exportar tipos de ciudadano
 export * from './ciudadano.types';
+
+// Exportar tipos de cuenta
+export * from './cuenta.types';
+
+// Exportar tipos de paginación
+export * from './pagination.types';
+
+// Exportar tipos de asignación
+export * from './asignacion.types';
+
+// Exportar tipos de técnico
+export * from './tecnico.types';
+
+// Exportar tipos de autenticación
+export * from './auth.types';

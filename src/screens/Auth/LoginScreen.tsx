@@ -1,27 +1,53 @@
 // src/screens/Auth/LoginScreen.tsx
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Alert, StatusBar } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Alert, StatusBar, ActivityIndicator } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import LinearGradient from 'react-native-linear-gradient';
 import { styles } from '../../styles/LoginScreen.styles';
+import { useAuth } from '../../context/AuthContext';
 
 const LoginScreen = () => {
-  const [correo, setCorreo] = useState('');
-  const [contrasena, setContrasena] = useState('');
+  const [usuario, setUsuario] = useState('');
+  const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const navigation = useNavigation();
+  const { login, usuario: usuarioAutenticado } = useAuth();
 
-  const handleLogin = () => {
-    if (!correo || !contrasena) {
+  const handleLogin = async () => {
+    if (!usuario || !password) {
       Alert.alert('Error', 'Todos los campos son obligatorios');
       return;
     }
 
-    // Simulación de login exitoso
-    if (correo === 'user@example.com' && contrasena === 'password') {
-      Alert.alert('Éxito', '¡Inicio de sesión exitoso!');
-      navigation.navigate('MainTabs' as never);
-    } else {
-      Alert.alert('Error', 'Correo o contraseña inválidos');
+    setIsLoading(true);
+
+    try {
+      const response = await login(usuario, password);
+
+      console.log('Login exitoso, respuesta:', response);
+      console.log('Usuario autenticado:', usuarioAutenticado);
+
+      // Determinar a dónde navegar según el tipo de cuenta
+      const getNavigationTarget = () => {
+        if (usuarioAutenticado?.tipoCuenta === 'OPERADOR_MUNICIPAL') {
+          return 'HomeScreenOperador';
+        }
+        return 'MainTabs'; // CIUDADANO, TECNICO o por defecto
+      };
+
+      const navigationTarget = getNavigationTarget();
+      console.log('Navegando a:', navigationTarget);
+
+      Alert.alert(
+        'Éxito',
+        response.message || '¡Inicio de sesión exitoso!',
+        [{ text: 'OK', onPress: () => navigation.navigate(navigationTarget as never) }]
+      );
+    } catch (error: any) {
+      console.error('Error en login:', error);
+      Alert.alert('Error', error.message || 'Error al iniciar sesión');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -41,25 +67,34 @@ const LoginScreen = () => {
           </TouchableOpacity>
         </View>
 
-        <Text style={styles.label}>Correo Electronico:</Text>
+        <Text style={styles.label}>Usuario:</Text>
         <TextInput
-          value={correo}
-          onChangeText={setCorreo}
+          value={usuario}
+          onChangeText={setUsuario}
           style={styles.input}
-          keyboardType="email-address"
           autoCapitalize="none"
+          placeholder="Ingresa tu usuario"
         />
 
         <Text style={styles.label}>Contraseña:</Text>
         <TextInput
           secureTextEntry
-          value={contrasena}
-          onChangeText={setContrasena}
+          value={password}
+          onChangeText={setPassword}
           style={styles.input}
+          placeholder="Ingresa tu contraseña"
         />
 
-        <TouchableOpacity onPress={handleLogin} style={styles.loginButton}>
-          <Text style={styles.loginButtonText}>Iniciar Sesión</Text>
+        <TouchableOpacity
+          onPress={handleLogin}
+          style={[styles.loginButton, isLoading && { opacity: 0.6 }]}
+          disabled={isLoading}
+        >
+          {isLoading ? (
+            <ActivityIndicator color="white" />
+          ) : (
+            <Text style={styles.loginButtonText}>Iniciar Sesión</Text>
+          )}
         </TouchableOpacity>
 
         <TouchableOpacity

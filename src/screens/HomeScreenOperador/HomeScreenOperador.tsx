@@ -1,15 +1,27 @@
-// src/screens/Home/HomeScreen.tsx
+// src/screens/HomeScreenOperador/HomeScreenOperador.tsx
 import React from 'react';
 import { View, Text, FlatList, StatusBar, ActivityIndicator, TouchableOpacity, Alert } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { styles } from '../../styles/HomeScreen.styles';
-import ReportCard from '../../components/ReportCard';
-import { useHomeController } from './HomeScreen.controller';
+import ReportCardOperador from '../../components/ReportCardOperador';
+import { useHomeScreenOperadorController } from './HomeScreenOperador.controller';
 import { useAuth } from '../../context/AuthContext';
 
-const HomeScreen = () => {
-  const { reportes, loading, error, currentPage, totalPages, cargarReportes, nextPage, prevPage } = useHomeController();
+const HomeScreenOperador = () => {
+  const {
+    reportes,
+    loading,
+    error,
+    currentPage,
+    totalPages,
+    cargarReportes,
+    recargarPaginaActual,
+    nextPage,
+    prevPage,
+    cambiarEstadoARevision,
+    asignarTecnico
+  } = useHomeScreenOperadorController();
   const { usuario, logout } = useAuth();
 
   const handleLogout = () => {
@@ -18,18 +30,18 @@ const HomeScreen = () => {
       '¿Estás seguro de que quieres cerrar sesión?',
       [
         { text: 'Cancelar', style: 'cancel' },
-        {
-          text: 'Cerrar Sesión',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              await logout();
-              // La navegación se manejará automáticamente por el estado de autenticación
-            } catch (error) {
-              console.error('Error al cerrar sesión:', error);
-            }
-          }
-        }
+        { text: 'Cerrar Sesión', style: 'destructive', onPress: logout }
+      ]
+    );
+  };
+
+  const handleCambiarEstado = (reporteId: number) => {
+    Alert.alert(
+      'Cambiar Estado',
+      '¿Cambiar el estado del reporte a "EN REVISIÓN"?',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        { text: 'Confirmar', onPress: () => cambiarEstadoARevision(reporteId) }
       ]
     );
   };
@@ -40,11 +52,10 @@ const HomeScreen = () => {
       <View style={styles.container}>
         <View style={styles.header}>
           <View style={styles.headerLeft}>
-            <Text style={styles.headerText}>Mis Reportes</Text>
+            <Text style={styles.headerText}>Panel de Operador</Text>
             {usuario && (
-              <Text style={styles.userName}>
-              Hola, {usuario.nombre}
-              {usuario.tipoCuenta && ` (${usuario.tipoCuenta})`}
+                          <Text style={styles.userName}>
+              Operador: {usuario.nombre}
             </Text>
             )}
           </View>
@@ -54,7 +65,7 @@ const HomeScreen = () => {
         </View>
 
         <View style={styles.card}>
-          {loading ? (
+          {loading && reportes.length === 0 ? (
             <View style={styles.centerContainer}>
               <ActivityIndicator size="large" color="#a27eff" />
               <Text style={styles.loadingText}>Cargando reportes...</Text>
@@ -68,21 +79,22 @@ const HomeScreen = () => {
             </View>
           ) : reportes.length === 0 ? (
             <View style={styles.centerContainer}>
-              <Text style={styles.emptyText}>No tienes reportes aún</Text>
+              <Text style={styles.emptyText}>No hay reportes disponibles</Text>
             </View>
           ) : (
-            <View>
+            <View style={{flex: 1}}>
               <FlatList
                 data={reportes}
                 keyExtractor={(item) => item.id.toString()}
                 renderItem={({ item }) => {
-                  const ubicacionTexto = item.ubicacion?.direccion 
-                    || (item.ubicacion?.latitud && item.ubicacion?.longitud 
+                  const ubicacionTexto = item.ubicacion?.direccion
+                    || (item.ubicacion?.latitud && item.ubicacion?.longitud
                       ? `${item.ubicacion.latitud.toFixed(6)}, ${item.ubicacion.longitud.toFixed(6)}`
                       : 'Sin ubicación');
-                  
+
                   return (
-                    <ReportCard
+                    <ReportCardOperador
+                      key={`${item.id}-${item.estado}`}
                       id={item.id.toString()}
                       titulo={item.titulo}
                       tipo={item.prioridad}
@@ -93,11 +105,13 @@ const HomeScreen = () => {
                         year: 'numeric',
                       })}
                       ubicacion={ubicacionTexto}
+                      onCambiarEstado={() => handleCambiarEstado(item.id)}
+                      onAsignarTecnico={() => asignarTecnico(item.id)}
                     />
                   );
                 }}
-                refreshing={loading}
-                onRefresh={cargarReportes}
+                refreshing={loading && reportes.length > 0}
+                onRefresh={recargarPaginaActual}
               />
               {totalPages > 0 && (
                 <View style={styles.paginationContainer}>
@@ -110,7 +124,7 @@ const HomeScreen = () => {
                     <Text style={[styles.paginationButtonText, currentPage === 0 && styles.paginationButtonTextDisabled]}>Anterior</Text>
                   </TouchableOpacity>
                   <Text style={styles.paginationText}>
-                    Página {currentPage + 1} de {totalPages}
+                    Página {currentPage + 1} de {totalPages || 1}
                   </Text>
                   <TouchableOpacity
                     style={[styles.paginationButton, currentPage === totalPages - 1 && styles.paginationButtonDisabled]}
@@ -130,4 +144,4 @@ const HomeScreen = () => {
   );
 };
 
-export default HomeScreen;
+export default HomeScreenOperador;
