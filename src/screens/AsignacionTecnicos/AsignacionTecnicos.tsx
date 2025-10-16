@@ -1,34 +1,40 @@
-// src/screens/Home/HomeScreen.tsx
+// src/screens/AsignacionTecnicos/AsignacionTecnicos.tsx
 import React from 'react';
 import { View, Text, FlatList, StatusBar, ActivityIndicator, TouchableOpacity, Alert } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import LinearGradient from 'react-native-linear-gradient';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { styles } from '../../styles/HomeScreen.styles';
-import ReportCard from '../../components/ReportCard';
-import { useHomeController } from './HomeScreen.controller';
-import { useAuth } from '../../context/AuthContext';
+import TecnicoCard from '../../components/TecnicoCard';
+import { useAsignacionTecnicosController } from './AsignacionTecnicos.controller';
 
-const HomeScreen = () => {
-  const { reportes, loading, error, currentPage, totalPages, cargarReportes, nextPage, prevPage } = useHomeController();
-  const { usuario, logout } = useAuth();
+const AsignacionTecnicos = () => {
+  const navigation = useNavigation();
+  const {
+    tecnicos,
+    loading,
+    error,
+    asignando,
+    reporteId,
+    currentPage,
+    totalPages,
+    cargarTecnicos,
+    recargarPaginaActual,
+    nextPage,
+    prevPage,
+    asignarTecnico,
+  } = useAsignacionTecnicosController();
 
-  const handleLogout = () => {
+  const handleAsignarTecnico = (tecnicoId: number, tecnicoNombre: string) => {
     Alert.alert(
-      'Cerrar Sesión',
-      '¿Estás seguro de que quieres cerrar sesión?',
+      'Confirmar Asignación',
+      `¿Asignar el reporte #${reporteId} al técnico ${tecnicoNombre}?`,
       [
         { text: 'Cancelar', style: 'cancel' },
         {
-          text: 'Cerrar Sesión',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              await logout();
-              // La navegación se manejará automáticamente por el estado de autenticación
-            } catch (error) {
-              console.error('Error al cerrar sesión:', error);
-            }
-          }
+          text: 'Asignar',
+          onPress: () => asignarTecnico(tecnicoId),
+          style: 'default'
         }
       ]
     );
@@ -40,64 +46,50 @@ const HomeScreen = () => {
       <View style={styles.container}>
         <View style={styles.header}>
           <View style={styles.headerLeft}>
-            <Text style={styles.headerText}>Mis Reportes</Text>
-            {usuario && (
-              <Text style={styles.userName}>
-              Hola, {usuario.nombre}
-              {usuario.tipoCuenta && ` (${usuario.tipoCuenta})`}
-            </Text>
-            )}
+            <Text style={styles.headerText}>Asignar Técnico</Text>
+            <Text style={styles.userName}>Reporte #{reporteId}</Text>
           </View>
-          <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-            <Ionicons name="log-out-outline" size={24} color="white" />
+          <TouchableOpacity
+            style={styles.logoutButton}
+            onPress={() => (navigation as any).goBack()}
+          >
+            <Ionicons name="arrow-back-outline" size={24} color="white" />
           </TouchableOpacity>
         </View>
 
         <View style={styles.card}>
-          {loading ? (
+          {loading && tecnicos.length === 0 ? (
             <View style={styles.centerContainer}>
               <ActivityIndicator size="large" color="#a27eff" />
-              <Text style={styles.loadingText}>Cargando reportes...</Text>
+              <Text style={styles.loadingText}>Cargando técnicos...</Text>
             </View>
           ) : error ? (
             <View style={styles.centerContainer}>
               <Text style={styles.errorText}>{error}</Text>
-              <Text style={styles.retryText} onPress={cargarReportes}>
+              <Text style={styles.retryText} onPress={cargarTecnicos}>
                 Toca para reintentar
               </Text>
             </View>
-          ) : reportes.length === 0 ? (
+          ) : tecnicos.length === 0 ? (
             <View style={styles.centerContainer}>
-              <Text style={styles.emptyText}>No tienes reportes aún</Text>
+              <Text style={styles.emptyText}>No hay técnicos disponibles</Text>
             </View>
           ) : (
-            <View>
+            <View style={{flex: 1}}>
               <FlatList
-                data={reportes}
+                data={tecnicos}
                 keyExtractor={(item) => item.id.toString()}
-                renderItem={({ item }) => {
-                  const ubicacionTexto = item.ubicacion?.direccion 
-                    || (item.ubicacion?.latitud && item.ubicacion?.longitud 
-                      ? `${item.ubicacion.latitud.toFixed(6)}, ${item.ubicacion.longitud.toFixed(6)}`
-                      : 'Sin ubicación');
-                  
-                  return (
-                    <ReportCard
-                      id={item.id.toString()}
-                      titulo={item.titulo}
-                      tipo={item.prioridad}
-                      estado={item.estado}
-                      fecha={new Date(item.fechaCreacion).toLocaleDateString('es-PE', {
-                        day: '2-digit',
-                        month: 'short',
-                        year: 'numeric',
-                      })}
-                      ubicacion={ubicacionTexto}
-                    />
-                  );
-                }}
-                refreshing={loading}
-                onRefresh={cargarReportes}
+                renderItem={({ item }) => (
+                  <TecnicoCard
+                    id={item.id.toString()}
+                    nombre={`${item.nombres} ${item.apellidos}`}
+                    especialidad="Técnico Municipal"
+                    onAsignar={() => handleAsignarTecnico(item.id, `${item.nombres} ${item.apellidos}`)}
+                    asignando={asignando}
+                  />
+                )}
+                refreshing={loading && tecnicos.length > 0}
+                onRefresh={recargarPaginaActual}
               />
               {totalPages > 0 && (
                 <View style={styles.paginationContainer}>
@@ -130,4 +122,4 @@ const HomeScreen = () => {
   );
 };
 
-export default HomeScreen;
+export default AsignacionTecnicos;

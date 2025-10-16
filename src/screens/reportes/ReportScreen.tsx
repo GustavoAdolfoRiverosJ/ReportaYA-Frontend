@@ -7,7 +7,7 @@ import { useNavigation } from '@react-navigation/native';
 import LinearGradient from 'react-native-linear-gradient';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { styles } from '../../styles/ReportScreen.styles';
-import reportScreenController, { ReportFormData } from './ReportScreen.controller';
+import { useReportController, ReportFormData } from './ReportScreen.controller';
 import { useReportes } from '../../context/ReportesContext';
 
 const ReportScreen = () => {
@@ -16,6 +16,7 @@ const ReportScreen = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigation = useNavigation();
   const { agregarReporte } = useReportes();
+  const { enviarReporte, usuarioAutenticado } = useReportController();
 
   const requestLocationPermission = async () => {
     if (Platform.OS === 'android') {
@@ -149,10 +150,16 @@ const ReportScreen = () => {
   const handleSubmit = async () => {
     if (isLoading) return;
 
+    // Verificar que el usuario esté autenticado
+    if (!usuarioAutenticado) {
+      Alert.alert('Error', 'Debes iniciar sesión para crear un reporte');
+      return;
+    }
+
     setIsLoading(true);
     
     // ✨ Pasar el callback para agregar el reporte a la memoria
-    const reporteCreado = await reportScreenController.enviarReporte(form, agregarReporte);
+    const reporteCreado = await enviarReporte(form, agregarReporte);
     
     setIsLoading(false);
 

@@ -4,17 +4,23 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { useAuth } from '../context/AuthContext';
+import { View, ActivityIndicator } from 'react-native';
 
 import LoginScreen from '../screens/Auth/LoginScreen';
 import RegisterScreen from '../screens/Auth/RegisterScreen';
 import HomeScreen from '../screens/Home/HomeScreen';
 import MapScreen from '../screens/MapScreen';
 import ReportScreen from '../screens/reportes/ReportScreen';
+import HomeScreenOperador from '../screens/HomeScreenOperador/HomeScreenOperador';
+import AsignacionTecnicos from '../screens/AsignacionTecnicos/AsignacionTecnicos';
 
 type RootStackParamList = {
   Login: undefined;
   Register: undefined;
   MainTabs: undefined;
+  HomeScreenOperador: undefined;
+  AsignacionTecnicos: { reporteId: number };
 };
 
 type MainTabParamList = {
@@ -48,14 +54,54 @@ function MainTabs() {
   );
 }
 
-export default function AppNavigator() {
-  return (
-    <NavigationContainer>
+function AppNavigatorContent() {
+  const { isAuthenticated, isLoading, usuario } = useAuth();
+
+  if (isLoading) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" color="#a27eff" />
+      </View>
+    );
+  }
+
+  if (!isAuthenticated || !usuario) {
+    return (
       <Stack.Navigator initialRouteName="Login">
         <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
         <Stack.Screen name="Register" component={RegisterScreen} options={{ headerShown: false }} />
-        <Stack.Screen name="MainTabs" component={MainTabs} options={{ headerShown: false }} />
       </Stack.Navigator>
+    );
+  }
+
+  // Navegación condicional basada en el tipo de cuenta
+  const getInitialRoute = () => {
+    switch (usuario.tipoCuenta) {
+      case 'OPERADOR_MUNICIPAL':
+        return 'HomeScreenOperador';
+      case 'TECNICO':
+        return 'MainTabs'; // Por ahora técnicos usan la misma interfaz que ciudadanos
+      case 'CIUDADANO':
+      default:
+        return 'MainTabs';
+    }
+  };
+
+  return (
+    <Stack.Navigator initialRouteName={getInitialRoute()}>
+      <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="Register" component={RegisterScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="MainTabs" component={MainTabs} options={{ headerShown: false }} />
+      <Stack.Screen name="HomeScreenOperador" component={HomeScreenOperador} options={{ headerShown: false }} />
+      <Stack.Screen name="AsignacionTecnicos" component={AsignacionTecnicos} options={{ title: 'Asignar Técnico' }} />
+    </Stack.Navigator>
+  );
+}
+
+export default function AppNavigator() {
+  return (
+    <NavigationContainer>
+      <AppNavigatorContent />
     </NavigationContainer>
   );
 }
