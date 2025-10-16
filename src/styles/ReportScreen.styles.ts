@@ -85,6 +85,7 @@ export const styles = StyleSheet.create({
     textAlignVertical: 'top',
     marginBottom: 20,
     fontSize: 16,
+    color: '#333',
   },
   photoButton: {
     borderWidth: 2,

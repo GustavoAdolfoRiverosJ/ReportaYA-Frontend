@@ -10,9 +10,10 @@ interface ReportesContextType {
   currentPage: number;
   totalPages: number;
   cargarReportes: (cuentaId: number, page?: number) => Promise<void>;
+  reloadCurrentPage: (cuentaId: number) => Promise<void>;
   nextPage: (cuentaId: number) => Promise<void>;
   prevPage: (cuentaId: number) => Promise<void>;
-  agregarReporte: (reporte: ReporteResponse) => void;
+  agregarReporte: (reporte: ReporteResponse, cuentaId: number) => Promise<void>;
   actualizarReporte: (reporte: ReporteResponse) => void;
   actualizarEstadoReporte: (reporteId: number, nuevoEstado: string) => void;
   limpiarReportes: () => void;
@@ -56,9 +57,14 @@ export const ReportesProvider: React.FC<{ children: ReactNode }> = ({ children }
     }
   }, [currentPage, loading, cargarReportes]);
 
-  const agregarReporte = useCallback((reporte: ReporteResponse) => {
-    setReportes(prev => [reporte, ...prev]);
-  }, []);
+  const reloadCurrentPage = useCallback(async (cuentaId: number) => {
+    await cargarReportes(cuentaId, currentPage);
+  }, [currentPage, cargarReportes]);
+
+  const agregarReporte = useCallback(async (reporte: ReporteResponse, cuentaId: number) => {
+    // Recargar desde la primera página para mostrar el nuevo reporte
+    await cargarReportes(cuentaId, 0);
+  }, [cargarReportes]);
 
   const actualizarReporte = useCallback((reporteActualizado: ReporteResponse) => {
     setReportes(prev =>
@@ -88,6 +94,7 @@ export const ReportesProvider: React.FC<{ children: ReactNode }> = ({ children }
         currentPage,
         totalPages,
         cargarReportes,
+        reloadCurrentPage,
         nextPage,
         prevPage,
         agregarReporte,

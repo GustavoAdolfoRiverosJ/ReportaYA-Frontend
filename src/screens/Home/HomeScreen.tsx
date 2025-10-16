@@ -1,16 +1,30 @@
 // src/screens/Home/HomeScreen.tsx
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, FlatList, StatusBar, ActivityIndicator, TouchableOpacity, Alert } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { styles } from '../../styles/HomeScreen.styles';
 import ReportCard from '../../components/ReportCard';
+import ReportDetailModal from '../../components/ReportDetailModal';
 import { useHomeController } from './HomeScreen.controller';
 import { useAuth } from '../../context/AuthContext';
+import { ReporteResponse } from '../../types';
 
 const HomeScreen = () => {
   const { reportes, loading, error, currentPage, totalPages, cargarReportes, nextPage, prevPage } = useHomeController();
   const { usuario, logout } = useAuth();
+  const [selectedReporte, setSelectedReporte] = useState<ReporteResponse | null>(null);
+  const [modalVisible, setModalVisible] = useState(false);
+
+  const handleReportPress = (reporte: ReporteResponse) => {
+    setSelectedReporte(reporte);
+    setModalVisible(true);
+  };
+
+  const handleCloseModal = () => {
+    setModalVisible(false);
+    setSelectedReporte(null);
+  };
 
   const handleLogout = () => {
     Alert.alert(
@@ -93,6 +107,7 @@ const HomeScreen = () => {
                         year: 'numeric',
                       })}
                       ubicacion={ubicacionTexto}
+                      onPress={() => handleReportPress(item)}
                     />
                   );
                 }}
@@ -126,6 +141,12 @@ const HomeScreen = () => {
           )}
         </View>
       </View>
+
+      <ReportDetailModal
+        visible={modalVisible}
+        reporte={selectedReporte}
+        onClose={handleCloseModal}
+      />
     </LinearGradient>
   );
 };

@@ -41,10 +41,16 @@ export const styles = StyleSheet.create({
   statusPendiente: {
     backgroundColor: '#ff6b6b',
   },
-  statusProceso: {
+  statusRevision: {
     backgroundColor: '#ffa500',
   },
-  statusResuelto: {
+  statusProceso: {
+    backgroundColor: '#2196f3',
+  },
+  statusFinalizado: {
     backgroundColor: '#4caf50',
+  },
+  statusRechazado: {
+    backgroundColor: '#9e9e9e',
   },
 });

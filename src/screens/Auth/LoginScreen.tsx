@@ -74,6 +74,7 @@ const LoginScreen = () => {
           style={styles.input}
           autoCapitalize="none"
           placeholder="Ingresa tu usuario"
+          placeholderTextColor="#999"
         />
 
         <Text style={styles.label}>Contraseña:</Text>
@@ -83,6 +84,7 @@ const LoginScreen = () => {
           onChangeText={setPassword}
           style={styles.input}
           placeholder="Ingresa tu contraseña"
+          placeholderTextColor="#999"
         />
 
         <TouchableOpacity
