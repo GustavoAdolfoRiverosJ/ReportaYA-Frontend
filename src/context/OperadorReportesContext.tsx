@@ -73,51 +73,22 @@ export const OperadorReportesProvider: React.FC<{ children: ReactNode }> = ({ ch
       setLoading(true);
       await ServicioReportes.cambiarEstadoReporte(reporteId, 'REVISION' as any);
 
-      // Actualizar en todas las páginas del cache
-      setPagesCache(prev => {
-        const newCache = new Map(prev);
-        for (const [page, reports] of newCache) {
-          const updatedReports = reports.map(reporte =>
-            reporte.id === reporteId
-              ? { ...reporte, estado: 'REVISION' as any }
-              : reporte
-          );
-          newCache.set(page, updatedReports);
-        }
-        return newCache;
-      });
-
-      // Actualizar el estado actual
-      setReportes(prev =>
-        prev.map(reporte =>
-          reporte.id === reporteId
-            ? { ...reporte, estado: 'REVISION' as any }
-            : reporte
-        )
-      );
+      // Invalidar cache completo y recargar página actual
+      // Esto asegura que la paginación se mantenga correcta
+      setPagesCache(new Map());
+      await cargarReportes(currentPage);
     } catch (err: any) {
       setError(err.message || 'Error al cambiar estado del reporte');
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [currentPage, cargarReportes]);
 
   const actualizarEstadoReporte = useCallback((reporteId: number, nuevoEstado: string) => {
-    // Actualizar en todas las páginas del cache
-    setPagesCache(prev => {
-      const newCache = new Map(prev);
-      for (const [page, reports] of newCache) {
-        const updatedReports = reports.map(reporte =>
-          reporte.id === reporteId
-            ? { ...reporte, estado: nuevoEstado as any }
-            : reporte
-        );
-        newCache.set(page, updatedReports);
-      }
-      return newCache;
-    });
-
-    // Actualizar el estado actual si está en la página actual
+    // Invalidar cache para forzar recarga en próxima navegación
+    setPagesCache(new Map());
+    
+    // Actualizar el estado actual
     setReportes(prev =>
       prev.map(reporte =>
         reporte.id === reporteId

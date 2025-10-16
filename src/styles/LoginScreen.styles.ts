@@ -53,6 +53,7 @@ export const styles = StyleSheet.create({
     marginBottom: 15,
     borderRadius: 8,
     fontSize: 16,
+    color: '#333',
   },
   loginButton: {
     backgroundColor: '#a27eff',

@@ -16,7 +16,7 @@ const ReportScreen = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigation = useNavigation();
   const { agregarReporte } = useReportes();
-  const { enviarReporte, usuarioAutenticado } = useReportController();
+  const { enviarReporte, usuarioAutenticado, usuarioId } = useReportController();
 
   const requestLocationPermission = async () => {
     if (Platform.OS === 'android') {
@@ -151,7 +151,7 @@ const ReportScreen = () => {
     if (isLoading) return;
 
     // Verificar que el usuario esté autenticado
-    if (!usuarioAutenticado) {
+    if (!usuarioAutenticado || !usuarioId) {
       Alert.alert('Error', 'Debes iniciar sesión para crear un reporte');
       return;
     }
@@ -159,7 +159,9 @@ const ReportScreen = () => {
     setIsLoading(true);
     
     // ✨ Pasar el callback para agregar el reporte a la memoria
-    const reporteCreado = await enviarReporte(form, agregarReporte);
+    const reporteCreado = await enviarReporte(form, async (reporte) => {
+      await agregarReporte(reporte, usuarioId);
+    });
     
     setIsLoading(false);
 
@@ -222,6 +224,7 @@ const ReportScreen = () => {
             onChangeText={(text) => setForm(prev => ({ ...prev, descripcion: text }))} 
             multiline 
             placeholder="Describa el problema encontrado..." 
+            placeholderTextColor="#999"
           />
 
           <Text style={styles.label}>Adjuntar fotos:</Text>

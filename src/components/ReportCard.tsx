@@ -1,6 +1,6 @@
 // src/components/ReportCard.tsx
 import React from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, TouchableOpacity } from 'react-native';
 import { styles } from './ReportCard.styles';
 
 interface ReportCardProps {
@@ -10,6 +10,7 @@ interface ReportCardProps {
   estado: string;
   fecha: string;
   ubicacion: string;
+  onPress?: () => void;
 }
 
 const ReportCard: React.FC<ReportCardProps> = ({
@@ -18,33 +19,49 @@ const ReportCard: React.FC<ReportCardProps> = ({
   estado,
   fecha,
   ubicacion,
+  onPress,
 }) => {
   const getStatusStyle = (estado: string) => {
-    switch (estado) {
-      case 'Pendiente': return styles.statusPendiente;
-      case 'En proceso': return styles.statusProceso;
-      case 'Resuelto': return styles.statusResuelto;
-      default: return {};
+    switch (estado.toUpperCase()) {
+      case 'PENDIENTE': return styles.statusPendiente;
+      case 'REVISION': return styles.statusRevision;
+      case 'PROCESO': return styles.statusProceso;
+      case 'FINALIZADO': return styles.statusFinalizado;
+      case 'RECHAZADO': return styles.statusRechazado;
+      default: return styles.statusPendiente;
     }
   };
 
   const getBorderColor = (estado: string) => {
-    switch (estado) {
-      case 'Pendiente': return '#ff6b6b';
-      case 'En proceso': return '#ffa500';
-      case 'Resuelto': return '#4caf50';
+    switch (estado.toUpperCase()) {
+      case 'PENDIENTE': return '#ff6b6b';
+      case 'REVISION': return '#ffa500';
+      case 'PROCESO': return '#2196f3';
+      case 'FINALIZADO': return '#4caf50';
+      case 'RECHAZADO': return '#9e9e9e';
       default: return '#ddd';
     }
   };
 
-  return (
+  const getEstadoTexto = (estado: string) => {
+    switch (estado.toUpperCase()) {
+      case 'PENDIENTE': return 'Pendiente';
+      case 'REVISION': return 'En Revisión';
+      case 'PROCESO': return 'En Proceso';
+      case 'FINALIZADO': return 'Finalizado';
+      case 'RECHAZADO': return 'Rechazado';
+      default: return estado;
+    }
+  };
+
+  const CardContent = (
     <View style={[styles.reportCard, { borderLeftColor: getBorderColor(estado) }]}>
       <View style={styles.reportContent}>
         <Text style={styles.reportTitle}>{titulo}</Text>
         <View style={styles.statusContainer}>
           <Text style={styles.reportInfo}>Estado:</Text>
           <View style={[styles.statusBadge, getStatusStyle(estado)]}>
-            <Text style={styles.statusBadgeText}>{estado}</Text>
+            <Text style={styles.statusBadgeText}>{getEstadoTexto(estado)}</Text>
           </View>
         </View>
         <Text style={styles.reportInfo}>Fecha: {fecha}</Text>
@@ -52,6 +69,16 @@ const ReportCard: React.FC<ReportCardProps> = ({
       </View>
     </View>
   );
+
+  if (onPress) {
+    return (
+      <TouchableOpacity onPress={onPress} activeOpacity={0.7}>
+        {CardContent}
+      </TouchableOpacity>
+    );
+  }
+
+  return CardContent;
 };
 
 export default ReportCard;

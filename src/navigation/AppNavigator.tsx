@@ -10,7 +10,6 @@ import { View, ActivityIndicator } from 'react-native';
 import LoginScreen from '../screens/Auth/LoginScreen';
 import RegisterScreen from '../screens/Auth/RegisterScreen';
 import HomeScreen from '../screens/Home/HomeScreen';
-import MapScreen from '../screens/MapScreen';
 import ReportScreen from '../screens/reportes/ReportScreen';
 import HomeScreenOperador from '../screens/HomeScreenOperador/HomeScreenOperador';
 import AsignacionTecnicos from '../screens/AsignacionTecnicos/AsignacionTecnicos';
@@ -25,7 +24,6 @@ type RootStackParamList = {
 
 type MainTabParamList = {
   Home: undefined;
-  Map: undefined;
   Report: undefined;
 };
 
@@ -41,14 +39,9 @@ function MainTabs() {
         options={{ title: 'Mis Reportes', tabBarIcon: ({ color }) => <Ionicons name="home" color={color} size={20} /> }}
       />
       <Tab.Screen 
-        name="Map" 
-        component={MapScreen} 
-        options={{ title: 'Mapa', tabBarIcon: ({ color }) => <Ionicons name="map" color={color} size={20} /> }}
-      />
-      <Tab.Screen 
         name="Report" 
         component={ReportScreen} 
-        options={{ title: '+', tabBarIcon: ({ color }) => <Ionicons name="add-circle" color={color} size={24} /> }}
+        options={{ title: 'Crear Reporte', tabBarIcon: ({ color }) => <Ionicons name="add-circle" color={color} size={24} /> }}
       />
     </Tab.Navigator>
   );

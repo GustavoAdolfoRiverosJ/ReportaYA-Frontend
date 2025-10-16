@@ -1,6 +1,6 @@
 // src/screens/Auth/RegisterScreen.tsx
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Alert, StatusBar, ActivityIndicator } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Alert, StatusBar, ActivityIndicator, ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import LinearGradient from 'react-native-linear-gradient';
 import { styles } from '../../styles/RegisterScreen.styles';
@@ -116,9 +116,14 @@ const RegisterScreen = () => {
     <LinearGradient colors={['#a27eff', '#6a9fff']} style={styles.container}>
       <StatusBar barStyle="light-content" />
 
-      <Text style={styles.title}>ReportaYA</Text>
+      <ScrollView 
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+      >
+        <Text style={styles.title}>ReportaYA</Text>
 
-      <View style={styles.card}>
+        <View style={styles.card}>
         <View style={styles.tabContainer}>
           <TouchableOpacity onPress={() => navigation.navigate('Login' as never)}>
             <Text style={styles.tab}>Iniciar Sesión</Text>
@@ -135,6 +140,7 @@ const RegisterScreen = () => {
           style={styles.input}
           autoCapitalize="none"
           placeholder="Nombre de usuario único"
+          placeholderTextColor="#999"
         />
 
         <Text style={styles.label}>Nombres:</Text>
@@ -143,6 +149,7 @@ const RegisterScreen = () => {
           onChangeText={(value) => updateForm('nombres', value)}
           style={styles.input}
           placeholder="Tus nombres"
+          placeholderTextColor="#999"
         />
 
         <Text style={styles.label}>Apellidos:</Text>
@@ -151,6 +158,7 @@ const RegisterScreen = () => {
           onChangeText={(value) => updateForm('apellidos', value)}
           style={styles.input}
           placeholder="Tus apellidos"
+          placeholderTextColor="#999"
         />
 
         <Text style={styles.label}>DNI:</Text>
@@ -161,6 +169,7 @@ const RegisterScreen = () => {
           keyboardType="numeric"
           maxLength={8}
           placeholder="12345678"
+          placeholderTextColor="#999"
         />
 
         <Text style={styles.label}>Teléfono:</Text>
@@ -170,6 +179,7 @@ const RegisterScreen = () => {
           style={styles.input}
           keyboardType="phone-pad"
           placeholder="987654321"
+          placeholderTextColor="#999"
         />
 
         <Text style={styles.label}>Correo Electrónico:</Text>
@@ -180,6 +190,7 @@ const RegisterScreen = () => {
           keyboardType="email-address"
           autoCapitalize="none"
           placeholder="tu@email.com"
+          placeholderTextColor="#999"
         />
 
         <Text style={styles.label}>Contraseña:</Text>
@@ -189,6 +200,7 @@ const RegisterScreen = () => {
           onChangeText={(value) => updateForm('contrasena', value)}
           style={styles.input}
           placeholder="Mínimo 6 caracteres"
+          placeholderTextColor="#999"
         />
 
         <Text style={styles.label}>Repite tu contraseña:</Text>
@@ -198,6 +210,7 @@ const RegisterScreen = () => {
           onChangeText={(value) => updateForm('repeticion', value)}
           style={styles.input}
           placeholder="Repite tu contraseña"
+          placeholderTextColor="#999"
         />
 
         <TouchableOpacity
@@ -212,6 +225,7 @@ const RegisterScreen = () => {
           )}
         </TouchableOpacity>
       </View>
+      </ScrollView>
     </LinearGradient>
   );
 };
