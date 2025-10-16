@@ -29,49 +29,30 @@ export const styles = StyleSheet.create({
     borderTopRightRadius: 20,
     padding: 20,
   },
-  reportCard: {
-    backgroundColor: '#f0f8ff',
-    borderRadius: 15,
-    padding: 15,
-    marginBottom: 15,
-    flexDirection: 'row',
-    borderLeftWidth: 5,
-  },
-  reportContent: {
+  centerContainer: {
     flex: 1,
-  },
-  reportTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 8,
-  },
-  reportInfo: {
-    fontSize: 14,
-    color: '#555',
-    marginBottom: 4,
-  },
-  statusContainer: {
-    flexDirection: 'row',
+    justifyContent: 'center',
     alignItems: 'center',
   },
-  statusBadge: {
-    borderRadius: 8,
-    paddingVertical: 3,
-    paddingHorizontal: 8,
-    marginLeft: 5,
+  loadingText: {
+    marginTop: 10,
+    fontSize: 16,
+    color: '#666',
   },
-  statusBadgeText: {
-    color: 'white',
-    fontSize: 12,
-    fontWeight: 'bold',
+  errorText: {
+    fontSize: 16,
+    color: '#ff6b6b',
+    textAlign: 'center',
+    marginBottom: 10,
   },
-  statusPendiente: {
-    backgroundColor: '#ff6b6b',
+  retryText: {
+    fontSize: 14,
+    color: '#a27eff',
+    textDecorationLine: 'underline',
   },
-  statusProceso: {
-    backgroundColor: '#ffa500',
-  },
-  statusResuelto: {
-    backgroundColor: '#4caf50',
+  emptyText: {
+    fontSize: 16,
+    color: '#999',
+    textAlign: 'center',
   },
 });

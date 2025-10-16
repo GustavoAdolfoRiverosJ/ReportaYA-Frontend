@@ -1,0 +1,50 @@
+// src/components/ReportCard.styles.ts
+import { StyleSheet } from 'react-native';
+
+export const styles = StyleSheet.create({
+  reportCard: {
+    backgroundColor: '#f0f8ff',
+    borderRadius: 15,
+    padding: 15,
+    marginBottom: 15,
+    flexDirection: 'row',
+    borderLeftWidth: 5,
+  },
+  reportContent: {
+    flex: 1,
+  },
+  reportTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 8,
+  },
+  reportInfo: {
+    fontSize: 14,
+    color: '#555',
+    marginBottom: 4,
+  },
+  statusContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  statusBadge: {
+    borderRadius: 8,
+    paddingVertical: 3,
+    paddingHorizontal: 8,
+    marginLeft: 5,
+  },
+  statusBadgeText: {
+    color: 'white',
+    fontSize: 12,
+    fontWeight: 'bold',
+  },
+  statusPendiente: {
+    backgroundColor: '#ff6b6b',
+  },
+  statusProceso: {
+    backgroundColor: '#ffa500',
+  },
+  statusResuelto: {
+    backgroundColor: '#4caf50',
+  },
+});
