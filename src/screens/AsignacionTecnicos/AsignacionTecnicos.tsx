@@ -14,7 +14,7 @@ const AsignacionTecnicos = () => {
     tecnicos,
     loading,
     error,
-    asignando,
+    tecnicoAsignandoId,
     reporteId,
     currentPage,
     totalPages,
@@ -85,7 +85,7 @@ const AsignacionTecnicos = () => {
                     nombre={`${item.nombres} ${item.apellidos}`}
                     especialidad="Técnico Municipal"
                     onAsignar={() => handleAsignarTecnico(item.id, `${item.nombres} ${item.apellidos}`)}
-                    asignando={asignando}
+                    asignando={tecnicoAsignandoId === item.id}
                   />
                 )}
                 refreshing={loading && tecnicos.length > 0}

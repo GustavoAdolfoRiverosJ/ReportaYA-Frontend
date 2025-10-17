@@ -70,17 +70,24 @@ export const OperadorReportesProvider: React.FC<{ children: ReactNode }> = ({ ch
 
   const cambiarEstadoARevision = useCallback(async (reporteId: number) => {
     try {
-      setLoading(true);
+      // Actualizar el estado local inmediatamente para feedback visual
+      setReportes(prev =>
+        prev.map(reporte =>
+          reporte.id === reporteId
+            ? { ...reporte, estado: 'REVISION' as any }
+            : reporte
+        )
+      );
+
+      // Hacer la llamada al servidor en segundo plano
       await ServicioReportes.cambiarEstadoReporte(reporteId, 'REVISION' as any);
 
-      // Invalidar cache completo y recargar página actual
-      // Esto asegura que la paginación se mantenga correcta
+      // Invalidar cache completo para que la próxima carga sea fresca
       setPagesCache(new Map());
-      await cargarReportes(currentPage);
     } catch (err: any) {
       setError(err.message || 'Error al cambiar estado del reporte');
-    } finally {
-      setLoading(false);
+      // Revertir el cambio local si falla
+      await cargarReportes(currentPage);
     }
   }, [currentPage, cargarReportes]);
 

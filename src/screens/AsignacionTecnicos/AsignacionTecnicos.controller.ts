@@ -20,7 +20,7 @@ export const useAsignacionTecnicosController = () => {
     prevPage,
   } = useTecnicos();
   const { actualizarEstadoReporte } = useOperadorReportes();
-  const [asignando, setAsignando] = useState(false);
+  const [tecnicoAsignandoId, setTecnicoAsignandoId] = useState<number | null>(null);
   const [asignacionError, setAsignacionError] = useState<string | null>(null);
 
   const route = useRoute();
@@ -36,7 +36,7 @@ export const useAsignacionTecnicosController = () => {
     }
 
     try {
-      setAsignando(true);
+      setTecnicoAsignandoId(tecnicoId);
       setAsignacionError(null);
 
       await ServicioAsignaciones.crearAsignacion({
@@ -56,7 +56,7 @@ export const useAsignacionTecnicosController = () => {
     } catch (err: any) {
       setAsignacionError(err.message || 'Error al asignar técnico');
     } finally {
-      setAsignando(false);
+      setTecnicoAsignandoId(null);
     }
   };
 
@@ -68,7 +68,7 @@ export const useAsignacionTecnicosController = () => {
     tecnicos,
     loading,
     error: error || asignacionError,
-    asignando,
+    tecnicoAsignandoId,
     reporteId,
     currentPage,
     totalPages,
