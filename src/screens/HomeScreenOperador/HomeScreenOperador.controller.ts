@@ -1,42 +1,30 @@
 // src/screens/HomeScreenOperador/HomeScreenOperador.controller.ts
-import { useEffect } from 'react';
-import { useNavigation, useFocusEffect } from '@react-navigation/native';
-import { useOperadorReportes } from '../../context/OperadorReportesContext';
+import { useNavigation } from '@react-navigation/native';
+import { useAuth } from '../../context/AuthContext';
+import { Alert } from 'react-native';
 
 export const useHomeScreenOperadorController = () => {
-  const {
-    reportes,
-    loading,
-    error,
-    currentPage,
-    totalPages,
-    cargarReportes,
-    nextPage,
-    prevPage,
-    cambiarEstadoARevision,
-    actualizarEstadoReporte,
-  } = useOperadorReportes();
   const navigation = useNavigation();
+  const { usuario, logout } = useAuth();
 
-  const asignarTecnico = (reporteId: number) => {
-    (navigation as any).navigate('AsignacionTecnicos', { reporteId });
+  const navigateToGestionReportes = () => {
+    (navigation as any).navigate('GestionReportes');
   };
 
-  useEffect(() => {
-    cargarReportes(0);
-  }, []); // Solo ejecutar una vez al montar el componente
+  const handleLogout = () => {
+    Alert.alert(
+      'Cerrar Sesión',
+      '¿Estás seguro de que quieres cerrar sesión?',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        { text: 'Cerrar Sesión', style: 'destructive', onPress: logout }
+      ]
+    );
+  };
 
   return {
-    reportes,
-    loading,
-    error,
-    currentPage,
-    totalPages,
-    cargarReportes: () => cargarReportes(0),
-    recargarPaginaActual: () => cargarReportes(currentPage), // Para recargar la página actual
-    nextPage,
-    prevPage,
-    cambiarEstadoARevision,
-    asignarTecnico,
+    usuario,
+    navigateToGestionReportes,
+    handleLogout
   };
 };

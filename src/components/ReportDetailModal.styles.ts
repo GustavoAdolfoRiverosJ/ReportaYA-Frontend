@@ -38,7 +38,7 @@ export const styles = StyleSheet.create({
   },
   modalContent: {
     padding: 20,
-    maxHeight: 500,
+    // Removed fixed maxHeight to allow flexibility
   },
   section: {
     marginBottom: 20,
@@ -124,7 +124,9 @@ export const styles = StyleSheet.create({
   closeButtonBottom: {
     backgroundColor: '#a27eff',
     padding: 15,
-    margin: 20,
+    marginHorizontal: 20,
+    marginBottom: 20,
+    marginTop: 10,
     borderRadius: 12,
     alignItems: 'center',
   },

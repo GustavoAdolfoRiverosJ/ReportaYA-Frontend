@@ -1,21 +1,32 @@
 // src/screens/Auth/LoginScreen.tsx
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Alert, StatusBar, ActivityIndicator } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StatusBar, ActivityIndicator } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import LinearGradient from 'react-native-linear-gradient';
 import { styles } from '../../styles/LoginScreen.styles';
 import { useAuth } from '../../context/AuthContext';
+import CustomToast from '../../components/CustomToast';
 
 const LoginScreen = () => {
   const [usuario, setUsuario] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [toast, setToast] = useState<{ visible: boolean; message: string; type: 'success' | 'error' | 'info' }>({
+    visible: false,
+    message: '',
+    type: 'success',
+  });
+
   const navigation = useNavigation();
   const { login, usuario: usuarioAutenticado } = useAuth();
 
+  const showToast = (message: string, type: 'success' | 'error' | 'info' = 'success') => {
+    setToast({ visible: true, message, type });
+  };
+
   const handleLogin = async () => {
     if (!usuario || !password) {
-      Alert.alert('Error', 'Todos los campos son obligatorios');
+      showToast('Todos los campos son obligatorios', 'error');
       return;
     }
 
@@ -29,7 +40,7 @@ const LoginScreen = () => {
 
       // Determinar a dónde navegar según el tipo de cuenta
       const getNavigationTarget = () => {
-        if (usuarioAutenticado?.tipoCuenta === 'OPERADOR_MUNICIPAL') {
+        if (response.tipoCuenta === 'OPERADOR_MUNICIPAL') {
           return 'HomeScreenOperador';
         }
         return 'MainTabs'; // CIUDADANO, TECNICO o por defecto
@@ -38,14 +49,15 @@ const LoginScreen = () => {
       const navigationTarget = getNavigationTarget();
       console.log('Navegando a:', navigationTarget);
 
-      Alert.alert(
-        'Éxito',
-        response.message || '¡Inicio de sesión exitoso!',
-        [{ text: 'OK', onPress: () => navigation.navigate(navigationTarget as never) }]
-      );
+      showToast(response.message || '¡Inicio de sesión exitoso!', 'success');
+      
+      setTimeout(() => {
+        navigation.navigate(navigationTarget as never);
+      }, 1000);
+
     } catch (error: any) {
       console.error('Error en login:', error);
-      Alert.alert('Error', error.message || 'Error al iniciar sesión');
+      showToast(error.message || 'Error al iniciar sesión', 'error');
     } finally {
       setIsLoading(false);
     }
@@ -100,12 +112,19 @@ const LoginScreen = () => {
         </TouchableOpacity>
 
         <TouchableOpacity
-          onPress={() => Alert.alert('Recuperación', 'Función no implementada aún')}
+          onPress={() => showToast('Función no implementada aún', 'info')}
           style={styles.forgotButton}
         >
           <Text style={styles.forgotButtonText}>¿Olvidaste tu contraseña?</Text>
         </TouchableOpacity>
       </View>
+
+      <CustomToast
+        visible={toast.visible}
+        message={toast.message}
+        type={toast.type}
+        onClose={() => setToast(prev => ({ ...prev, visible: false }))}
+      />
     </LinearGradient>
   );
 };

@@ -1,11 +1,13 @@
 // src/screens/AsignacionTecnicos/AsignacionTecnicos.tsx
-import React from 'react';
-import { View, Text, FlatList, StatusBar, ActivityIndicator, TouchableOpacity, Alert } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, FlatList, StatusBar, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import LinearGradient from 'react-native-linear-gradient';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { styles } from '../../styles/HomeScreen.styles';
 import TecnicoCard from '../../components/TecnicoCard';
+import CustomToast from '../../components/CustomToast';
+import ConfirmationModal from '../../components/ConfirmationModal';
 import { useAsignacionTecnicosController } from './AsignacionTecnicos.controller';
 
 const AsignacionTecnicos = () => {
@@ -18,6 +20,8 @@ const AsignacionTecnicos = () => {
     reporteId,
     currentPage,
     totalPages,
+    showSuccess,
+    setShowSuccess,
     cargarTecnicos,
     recargarPaginaActual,
     nextPage,
@@ -25,19 +29,19 @@ const AsignacionTecnicos = () => {
     asignarTecnico,
   } = useAsignacionTecnicosController();
 
-  const handleAsignarTecnico = (tecnicoId: number, tecnicoNombre: string) => {
-    Alert.alert(
-      'Confirmar Asignación',
-      `¿Asignar el reporte #${reporteId} al técnico ${tecnicoNombre}?`,
-      [
-        { text: 'Cancelar', style: 'cancel' },
-        {
-          text: 'Asignar',
-          onPress: () => asignarTecnico(tecnicoId),
-          style: 'default'
-        }
-      ]
-    );
+  const [confirmModalVisible, setConfirmModalVisible] = useState(false);
+  const [selectedTecnico, setSelectedTecnico] = useState<{id: number, nombre: string} | null>(null);
+
+  const handleAsignarPress = (tecnicoId: number, tecnicoNombre: string) => {
+    setSelectedTecnico({ id: tecnicoId, nombre: tecnicoNombre });
+    setConfirmModalVisible(true);
+  };
+
+  const handleConfirmAsignacion = () => {
+    if (selectedTecnico) {
+      asignarTecnico(selectedTecnico.id);
+      setConfirmModalVisible(false);
+    }
   };
 
   return (
@@ -84,7 +88,7 @@ const AsignacionTecnicos = () => {
                     id={item.id.toString()}
                     nombre={`${item.nombres} ${item.apellidos}`}
                     especialidad="Técnico Municipal"
-                    onAsignar={() => handleAsignarTecnico(item.id, `${item.nombres} ${item.apellidos}`)}
+                    onAsignar={() => handleAsignarPress(item.id, `${item.nombres} ${item.apellidos}`)}
                     asignando={tecnicoAsignandoId === item.id}
                   />
                 )}
@@ -98,7 +102,7 @@ const AsignacionTecnicos = () => {
                     onPress={prevPage}
                     disabled={currentPage === 0 || loading}
                   >
-                    <Ionicons name="chevron-back-outline" size={20} color={currentPage === 0 ? '#ccc' : '#a27eff'} />
+                    <Ionicons name="chevron-back-outline" size={20} color={currentPage === 0 ? '#ccc' : 'white'} />
                     <Text style={[styles.paginationButtonText, currentPage === 0 && styles.paginationButtonTextDisabled]}>Anterior</Text>
                   </TouchableOpacity>
                   <Text style={styles.paginationText}>
@@ -110,7 +114,7 @@ const AsignacionTecnicos = () => {
                     disabled={currentPage === totalPages - 1 || loading}
                   >
                     <Text style={[styles.paginationButtonText, currentPage === totalPages - 1 && styles.paginationButtonTextDisabled]}>Siguiente</Text>
-                    <Ionicons name="chevron-forward-outline" size={20} color={currentPage === totalPages - 1 ? '#ccc' : '#a27eff'} />
+                    <Ionicons name="chevron-forward-outline" size={20} color={currentPage === totalPages - 1 ? '#ccc' : 'white'} />
                   </TouchableOpacity>
                 </View>
               )}
@@ -118,6 +122,22 @@ const AsignacionTecnicos = () => {
           )}
         </View>
       </View>
+
+      <ConfirmationModal
+        visible={confirmModalVisible}
+        title="Confirmar Asignación"
+        message={`¿Asignar el reporte #${reporteId} al técnico ${selectedTecnico?.nombre}?`}
+        onConfirm={handleConfirmAsignacion}
+        onCancel={() => setConfirmModalVisible(false)}
+        confirmText="Asignar"
+      />
+
+      <CustomToast
+        visible={showSuccess}
+        message="Técnico asignado correctamente"
+        type="success"
+        onClose={() => setShowSuccess(false)}
+      />
     </LinearGradient>
   );
 };

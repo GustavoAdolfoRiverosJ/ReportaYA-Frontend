@@ -4,11 +4,12 @@
  * Estados posibles de un reporte
  */
 export enum EstadoReporte {
-  PENDIENTE = 'PENDIENTE',   // Estado inicial
-  REVISION = 'REVISION',     // En revisión por autoridades
-  PROCESO = 'PROCESO',       // En proceso de solución
-  FINALIZADO = 'FINALIZADO', // Problema resuelto
-  RECHAZADO = 'RECHAZADO'    // Reporte rechazado
+  PENDIENTE = 'PENDIENTE',   // Recién creado por el ciudadano
+  REVISION = 'REVISION',     // En revisión por el operador municipal
+  PROCESO = 'PROCESO',       // Técnico asignado y trabajando
+  RESUELTA = 'RESUELTA',     // Trabajo completado por el técnico
+  CERRADA = 'CERRADA',       // Validado y cerrado por el operador
+  RECHAZADO = 'RECHAZADO'    // Reporte inválido o duplicado
 }
 
 /**
@@ -21,5 +22,5 @@ export enum Prioridad {
 }
 
 // Type aliases para uso flexible
-export type EstadoReporteType = 'PENDIENTE' | 'REVISION' | 'PROCESO' | 'FINALIZADO' | 'RECHAZADO';
+export type EstadoReporteType = 'PENDIENTE' | 'REVISION' | 'PROCESO' | 'RESUELTA' | 'CERRADA' | 'RECHAZADO';
 export type PrioridadType = 'BAJA' | 'MEDIA' | 'ALTA';

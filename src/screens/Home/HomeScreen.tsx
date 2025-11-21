@@ -85,10 +85,11 @@ const HomeScreen = () => {
               <Text style={styles.emptyText}>No tienes reportes aún</Text>
             </View>
           ) : (
-            <View>
+            <View style={{ flex: 1 }}>
               <FlatList
                 data={reportes}
                 keyExtractor={(item) => item.id.toString()}
+                contentContainerStyle={{ flexGrow: 1 }}
                 renderItem={({ item }) => {
                   const ubicacionTexto = item.ubicacion?.direccion 
                     || (item.ubicacion?.latitud && item.ubicacion?.longitud 
@@ -113,30 +114,33 @@ const HomeScreen = () => {
                 }}
                 refreshing={loading}
                 onRefresh={cargarReportes}
+                ListFooterComponent={
+                  totalPages > 0 ? (
+                    <View style={[styles.paginationContainer, { marginTop: 'auto' }]}>
+                      <TouchableOpacity
+                        style={[styles.paginationButton, currentPage === 0 && styles.paginationButtonDisabled]}
+                        onPress={prevPage}
+                        disabled={currentPage === 0 || loading}
+                      >
+                        <Ionicons name="chevron-back-outline" size={20} color={currentPage === 0 ? '#ccc' : 'white'} />
+                        <Text style={[styles.paginationButtonText, currentPage === 0 && styles.paginationButtonTextDisabled]}>Anterior</Text>
+                      </TouchableOpacity>
+                      <Text style={styles.paginationText}>
+                        Página {currentPage + 1} de {totalPages}
+                      </Text>
+                      <TouchableOpacity
+                        style={[styles.paginationButton, currentPage === totalPages - 1 && styles.paginationButtonDisabled]}
+                        onPress={nextPage}
+                        disabled={currentPage === totalPages - 1 || loading}
+                      >
+                        <Text style={[styles.paginationButtonText, currentPage === totalPages - 1 && styles.paginationButtonTextDisabled]}>Siguiente</Text>
+                        <Ionicons name="chevron-forward-outline" size={20} color={currentPage === totalPages - 1 ? '#ccc' : 'white'} />
+                      </TouchableOpacity>
+                    </View>
+                  ) : null
+                }
+                ListFooterComponentStyle={{ flex: 1, justifyContent: 'flex-end' }}
               />
-              {totalPages > 0 && (
-                <View style={styles.paginationContainer}>
-                  <TouchableOpacity
-                    style={[styles.paginationButton, currentPage === 0 && styles.paginationButtonDisabled]}
-                    onPress={prevPage}
-                    disabled={currentPage === 0 || loading}
-                  >
-                    <Ionicons name="chevron-back-outline" size={20} color={currentPage === 0 ? '#ccc' : '#a27eff'} />
-                    <Text style={[styles.paginationButtonText, currentPage === 0 && styles.paginationButtonTextDisabled]}>Anterior</Text>
-                  </TouchableOpacity>
-                  <Text style={styles.paginationText}>
-                    Página {currentPage + 1} de {totalPages}
-                  </Text>
-                  <TouchableOpacity
-                    style={[styles.paginationButton, currentPage === totalPages - 1 && styles.paginationButtonDisabled]}
-                    onPress={nextPage}
-                    disabled={currentPage === totalPages - 1 || loading}
-                  >
-                    <Text style={[styles.paginationButtonText, currentPage === totalPages - 1 && styles.paginationButtonTextDisabled]}>Siguiente</Text>
-                    <Ionicons name="chevron-forward-outline" size={20} color={currentPage === totalPages - 1 ? '#ccc' : '#a27eff'} />
-                  </TouchableOpacity>
-                </View>
-              )}
             </View>
           )}
         </View>

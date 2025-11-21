@@ -37,7 +37,7 @@ export const styles = StyleSheet.create({
   logoutButton: {
     padding: 8,
     borderRadius: 20,
-    backgroundColor: 'rgba(162, 126, 255, 0.1)',
+    backgroundColor: '#a27eff', // Color sólido para contraste
   },
   card: {
     flex: 1,

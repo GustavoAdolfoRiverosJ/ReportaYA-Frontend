@@ -12,14 +12,18 @@ import RegisterScreen from '../screens/Auth/RegisterScreen';
 import HomeScreen from '../screens/Home/HomeScreen';
 import ReportScreen from '../screens/reportes/ReportScreen';
 import HomeScreenOperador from '../screens/HomeScreenOperador/HomeScreenOperador';
+import GestionReportes from '../screens/GestionReportes/GestionReportes';
 import AsignacionTecnicos from '../screens/AsignacionTecnicos/AsignacionTecnicos';
+import HistorialScreen from '../screens/Historial/HistorialScreen';
 
-type RootStackParamList = {
+export type RootStackParamList = {
   Login: undefined;
   Register: undefined;
   MainTabs: undefined;
   HomeScreenOperador: undefined;
+  GestionReportes: undefined;
   AsignacionTecnicos: { reporteId: number };
+  Historial: { reporteId: number };
 };
 
 type MainTabParamList = {
@@ -86,7 +90,9 @@ function AppNavigatorContent() {
       <Stack.Screen name="Register" component={RegisterScreen} options={{ headerShown: false }} />
       <Stack.Screen name="MainTabs" component={MainTabs} options={{ headerShown: false }} />
       <Stack.Screen name="HomeScreenOperador" component={HomeScreenOperador} options={{ headerShown: false }} />
+      <Stack.Screen name="GestionReportes" component={GestionReportes} options={{ headerShown: false }} />
       <Stack.Screen name="AsignacionTecnicos" component={AsignacionTecnicos} options={{ title: 'Asignar Técnico' }} />
+      <Stack.Screen name="Historial" component={HistorialScreen} options={{ headerShown: false }} />
     </Stack.Navigator>
   );
 }

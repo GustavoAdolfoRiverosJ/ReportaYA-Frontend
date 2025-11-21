@@ -1,6 +1,6 @@
 // src/screens/reportes/ReportScreen.tsx
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Alert, PermissionsAndroid, Platform, Image, Modal, ScrollView, StatusBar } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, PermissionsAndroid, Platform, Image, ScrollView, StatusBar } from 'react-native';
 import Geolocation from '@react-native-community/geolocation';
 import { launchCamera } from 'react-native-image-picker';
 import { useNavigation } from '@react-navigation/native';
@@ -9,14 +9,24 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import { styles } from '../../styles/ReportScreen.styles';
 import { useReportController, ReportFormData } from './ReportScreen.controller';
 import { useReportes } from '../../context/ReportesContext';
+import CustomToast from '../../components/CustomToast';
 
 const ReportScreen = () => {
   const [form, setForm] = useState<ReportFormData>({ tipo: '', descripcion: '', ubicacion: null, imagen: null });
-  const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [toast, setToast] = useState<{ visible: boolean; message: string; type: 'success' | 'error' | 'info' }>({
+    visible: false,
+    message: '',
+    type: 'success',
+  });
+
   const navigation = useNavigation();
   const { agregarReporte } = useReportes();
   const { enviarReporte, usuarioAutenticado, usuarioId } = useReportController();
+
+  const showToast = (message: string, type: 'success' | 'error' | 'info' = 'success') => {
+    setToast({ visible: true, message, type });
+  };
 
   const requestLocationPermission = async () => {
     if (Platform.OS === 'android') {
@@ -36,15 +46,11 @@ const ReportScreen = () => {
           console.log('Permiso de ubicación concedido');
           getCurrentLocation();
         } else {
-          Alert.alert(
-            'Permiso denegado',
-            'Necesitamos acceso a tu ubicación para crear el reporte. Por favor, habilita el permiso en la configuración de la app.',
-            [{ text: 'OK' }]
-          );
+          showToast('Permiso de ubicación denegado', 'error');
         }
       } catch (err) {
         console.warn('Error al solicitar permiso:', err);
-        Alert.alert('Error', 'Ocurrió un error al solicitar el permiso de ubicación');
+        showToast('Error al solicitar permiso de ubicación', 'error');
       }
     } else {
       getCurrentLocation();
@@ -52,18 +58,14 @@ const ReportScreen = () => {
   };
 
   const getCurrentLocation = () => {
-    Alert.alert('Obteniendo ubicación', 'Por favor espera...');
+    showToast('Obteniendo ubicación...', 'info');
     
     Geolocation.getCurrentPosition(
       (position) => {
         const lat = position.coords.latitude;
         const lng = position.coords.longitude;
         setForm(prev => ({ ...prev, ubicacion: { lat, lng } }));
-        Alert.alert(
-          'Ubicación obtenida ✓',
-          `Lat: ${lat.toFixed(6)}\nLng: ${lng.toFixed(6)}`,
-          [{ text: 'OK' }]
-        );
+        showToast('Ubicación obtenida correctamente', 'success');
         console.log('Ubicación obtenida:', { lat, lng });
       },
       (error) => {
@@ -72,29 +74,22 @@ const ReportScreen = () => {
         
         switch (error.code) {
           case 1: // PERMISSION_DENIED
-            mensaje = 'Permiso de ubicación denegado. Por favor habilítalo en configuración.';
+            mensaje = 'Permiso de ubicación denegado.';
             break;
           case 2: // POSITION_UNAVAILABLE
-            mensaje = 'Ubicación no disponible. Verifica que el GPS esté activado.';
+            mensaje = 'Ubicación no disponible. Verifica GPS.';
             break;
           case 3: // TIMEOUT
-            mensaje = 'Tiempo de espera agotado. Intenta nuevamente en un lugar con mejor señal.';
+            mensaje = 'Tiempo de espera agotado.';
             break;
         }
         
-        Alert.alert(
-          'Error de ubicación',
-          mensaje,
-          [
-            { text: 'Reintentar', onPress: () => getCurrentLocation() },
-            { text: 'Cancelar', style: 'cancel' }
-          ]
-        );
+        showToast(mensaje, 'error');
       },
       { 
-        enableHighAccuracy: false,  // Cambiado a false para ser más rápido
-        timeout: 30000,              // Aumentado a 30 segundos
-        maximumAge: 10000            // Permite usar ubicación de hace 10 segundos
+        enableHighAccuracy: false,
+        timeout: 30000,
+        maximumAge: 10000
       }
     );
   };
@@ -115,11 +110,7 @@ const ReportScreen = () => {
         );
         
         if (cameraPermission !== PermissionsAndroid.RESULTS.GRANTED) {
-          Alert.alert(
-            'Permiso denegado',
-            'Necesitamos acceso a tu cámara para tomar fotos.',
-            [{ text: 'OK' }]
-          );
+          showToast('Permiso de cámara denegado', 'error');
           return;
         }
       }
@@ -135,7 +126,7 @@ const ReportScreen = () => {
       }
       
       if (response.errorCode) {
-        Alert.alert('Error', response.errorMessage || 'Ocurrió un error');
+        showToast(response.errorMessage || 'Error al tomar foto', 'error');
         return;
       }
       
@@ -143,7 +134,7 @@ const ReportScreen = () => {
         setForm(prev => ({ ...prev, imagen: response.assets![0].uri || null }));
       }
     } catch (error) {
-      Alert.alert('Error', 'No se pudo acceder a la cámara');
+      showToast('No se pudo acceder a la cámara', 'error');
     }
   };
 
@@ -152,7 +143,7 @@ const ReportScreen = () => {
 
     // Verificar que el usuario esté autenticado
     if (!usuarioAutenticado || !usuarioId) {
-      Alert.alert('Error', 'Debes iniciar sesión para crear un reporte');
+      showToast('Debes iniciar sesión para crear un reporte', 'error');
       return;
     }
 
@@ -166,9 +157,8 @@ const ReportScreen = () => {
     setIsLoading(false);
 
     if (reporteCreado) {
-      setShowSuccessModal(true);
+      showToast('¡Reporte creado exitosamente!', 'success');
       setTimeout(() => {
-        setShowSuccessModal(false);
         navigation.navigate('Home' as never);
       }, 2000);
     }
@@ -251,13 +241,12 @@ const ReportScreen = () => {
         </View>
       </ScrollView>
 
-      <Modal visible={showSuccessModal} transparent animationType="fade">
-        <View style={styles.modalBackground}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalText}>✅ ¡Reporte creado exitosamente!</Text>
-          </View>
-        </View>
-      </Modal>
+      <CustomToast
+        visible={toast.visible}
+        message={toast.message}
+        type={toast.type}
+        onClose={() => setToast(prev => ({ ...prev, visible: false }))}
+      />
     </LinearGradient>
   );
 };

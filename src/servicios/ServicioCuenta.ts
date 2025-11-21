@@ -3,7 +3,7 @@ import httpService from './httpService';
 import { CrearCuentaRequest, CuentaResponse } from '../types/cuenta.types';
 
 class ServicioCuenta {
-  private readonly ENDPOINT = '/cuenta';
+  private readonly ENDPOINT = '/api/cuenta';
 
   /**
    * Crear una nueva cuenta (ciudadano, técnico, operador municipal)

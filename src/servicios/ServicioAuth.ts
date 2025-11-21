@@ -3,7 +3,7 @@ import httpService from './httpService';
 import { AuthLoginRequest, AuthLoginResponse } from '../types/auth.types';
 
 class ServicioAuth {
-  private readonly ENDPOINT = '/auth';
+  private readonly ENDPOINT = '/api/auth';
 
   /**
    * Realizar login de usuario

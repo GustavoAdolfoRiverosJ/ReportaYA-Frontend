@@ -13,6 +13,7 @@ interface ReportCardOperadorProps {
   ubicacion: string;
   onCambiarEstado: () => void;
   onAsignarTecnico: () => void;
+  onRechazar?: () => void;
 }
 
 const ReportCardOperador: React.FC<ReportCardOperadorProps> = ({
@@ -23,13 +24,15 @@ const ReportCardOperador: React.FC<ReportCardOperadorProps> = ({
   ubicacion,
   onCambiarEstado,
   onAsignarTecnico,
+  onRechazar,
 }) => {
   const getStatusStyle = (estado: string) => {
     switch (estado) {
       case 'PENDIENTE': return styles.statusPendiente;
       case 'REVISION': return styles.statusRevision;
       case 'PROCESO': return styles.statusProceso;
-      case 'FINALIZADO': return styles.statusFinalizado;
+      case 'RESUELTA': return styles.statusFinalizado; // Reusing Finalizado style
+      case 'CERRADA': return styles.statusFinalizado;
       case 'RECHAZADO': return styles.statusRechazado;
       default: return {};
     }
@@ -40,7 +43,8 @@ const ReportCardOperador: React.FC<ReportCardOperadorProps> = ({
       case 'PENDIENTE': return '#ff6b6b';
       case 'REVISION': return '#ffa500';
       case 'PROCESO': return '#2196f3';
-      case 'FINALIZADO': return '#4caf50';
+      case 'RESUELTA': return '#4caf50';
+      case 'CERRADA': return '#4caf50';
       case 'RECHAZADO': return '#f44336';
       default: return '#ddd';
     }
@@ -51,7 +55,8 @@ const ReportCardOperador: React.FC<ReportCardOperadorProps> = ({
       case 'PENDIENTE': return 'Pendiente';
       case 'REVISION': return 'En Revisión';
       case 'PROCESO': return 'En Proceso';
-      case 'FINALIZADO': return 'Finalizado';
+      case 'RESUELTA': return 'Resuelta';
+      case 'CERRADA': return 'Cerrada';
       case 'RECHAZADO': return 'Rechazado';
       default: return estado;
     }
@@ -74,23 +79,45 @@ const ReportCardOperador: React.FC<ReportCardOperadorProps> = ({
 
       <View style={styles.actionsContainer}>
         {estado === 'PENDIENTE' && (
-          <TouchableOpacity
-            style={[styles.actionButton, styles.revisionButton]}
-            onPress={onCambiarEstado}
-          >
-            <Ionicons name="eye-outline" size={16} color="white" />
-            <Text style={styles.actionButtonText}>Revisar</Text>
-          </TouchableOpacity>
+          <>
+            <TouchableOpacity
+              style={[styles.actionButton, styles.revisionButton]}
+              onPress={onCambiarEstado}
+            >
+              <Ionicons name="eye-outline" size={16} color="white" />
+              <Text style={styles.actionButtonText}>Revisar</Text>
+            </TouchableOpacity>
+            {onRechazar && (
+              <TouchableOpacity
+                style={[styles.actionButton, { backgroundColor: '#f44336', marginLeft: 8 }]}
+                onPress={onRechazar}
+              >
+                <Ionicons name="close-circle-outline" size={16} color="white" />
+                <Text style={styles.actionButtonText}>Rechazar</Text>
+              </TouchableOpacity>
+            )}
+          </>
         )}
 
         {estado === 'REVISION' && (
-          <TouchableOpacity
-            style={[styles.actionButton, styles.assignButton]}
-            onPress={onAsignarTecnico}
-          >
-            <Ionicons name="person-add-outline" size={16} color="white" />
-            <Text style={styles.actionButtonText}>Asignar</Text>
-          </TouchableOpacity>
+          <>
+            <TouchableOpacity
+              style={[styles.actionButton, styles.assignButton]}
+              onPress={onAsignarTecnico}
+            >
+              <Ionicons name="person-add-outline" size={16} color="white" />
+              <Text style={styles.actionButtonText}>Asignar</Text>
+            </TouchableOpacity>
+            {onRechazar && (
+              <TouchableOpacity
+                style={[styles.actionButton, { backgroundColor: '#f44336', marginLeft: 8 }]}
+                onPress={onRechazar}
+              >
+                <Ionicons name="close-circle-outline" size={16} color="white" />
+                <Text style={styles.actionButtonText}>Rechazar</Text>
+              </TouchableOpacity>
+            )}
+          </>
         )}
       </View>
     </View>
