@@ -1,7 +1,9 @@
 // src/context/AuthContext.tsx
 import React, { createContext, useContext, useState, useCallback, useEffect, ReactNode } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import messaging from '@react-native-firebase/messaging';
 import ServicioAuth from '../servicios/ServicioAuth';
+import ServicioNotificaciones from '../servicios/ServicioNotificaciones';
 import { UsuarioAutenticado, AuthState, AuthContextType, AuthLoginResponse } from '../types/auth.types';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -16,6 +18,33 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   useEffect(() => {
     verificarAutenticacionInicial();
   }, []);
+
+  const registrarTokenFCM = async (cuentaId: number) => {
+    try {
+      // Solicitar permisos (iOS)
+      const authStatus = await messaging().requestPermission();
+      const enabled =
+        authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+        authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+
+      if (enabled) {
+        // Obtener el token
+        const token = await messaging().getToken();
+        console.log('FCM Token:', token);
+
+        // Registrar en el backend
+        await ServicioNotificaciones.registrarToken({
+          cuentaId,
+          token
+        });
+        console.log('Token FCM registrado en backend');
+      } else {
+        console.log('Permiso de notificaciones denegado');
+      }
+    } catch (error) {
+      console.error('Error al registrar token FCM:', error);
+    }
+  };
 
   const verificarAutenticacionInicial = async () => {
     try {
@@ -46,6 +75,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             nombre: user.nombre,
             tipoCuenta: user.tipoCuenta
           });
+          
+          // Registrar token en segundo plano
+          registrarTokenFCM(user.id);
           return;
         } else {
           // Login expirado, limpiar datos
@@ -92,6 +124,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         nombre: usuarioAutenticado.nombre,
         tipoCuenta: usuarioAutenticado.tipoCuenta
       });
+
+      // Registrar token FCM
+      registrarTokenFCM(usuarioAutenticado.id);
+
       return response;
 
     } catch (error) {

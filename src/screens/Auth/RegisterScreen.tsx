@@ -1,11 +1,12 @@
 // src/screens/Auth/RegisterScreen.tsx
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Alert, StatusBar, ActivityIndicator, ScrollView } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StatusBar, ActivityIndicator, ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import LinearGradient from 'react-native-linear-gradient';
 import { styles } from '../../styles/RegisterScreen.styles';
 import ServicioCuenta from '../../servicios/ServicioCuenta';
 import { CrearCuentaRequest } from '../../types/cuenta.types';
+import CustomToast from '../../components/CustomToast';
 
 const RegisterScreen = () => {
   const [form, setForm] = useState({
@@ -19,7 +20,17 @@ const RegisterScreen = () => {
     repeticion: ''
   });
   const [isLoading, setIsLoading] = useState(false);
+  const [toast, setToast] = useState<{ visible: boolean; message: string; type: 'success' | 'error' | 'info' }>({
+    visible: false,
+    message: '',
+    type: 'success',
+  });
+
   const navigation = useNavigation();
+
+  const showToast = (message: string, type: 'success' | 'error' | 'info' = 'success') => {
+    setToast({ visible: true, message, type });
+  };
 
   const updateForm = (field: string, value: string) => {
     setForm(prev => ({ ...prev, [field]: value }));
@@ -29,34 +40,34 @@ const RegisterScreen = () => {
     const { usuario, nombres, apellidos, dni, telefono, correo, contrasena, repeticion } = form;
 
     if (!usuario || !nombres || !apellidos || !dni || !telefono || !correo || !contrasena || !repeticion) {
-      Alert.alert('Error', 'Todos los campos son obligatorios');
+      showToast('Todos los campos son obligatorios', 'error');
       return false;
     }
 
     if (contrasena !== repeticion) {
-      Alert.alert('Error', 'Las contraseñas no coinciden');
+      showToast('Las contraseñas no coinciden', 'error');
       return false;
     }
 
     if (contrasena.length < 6) {
-      Alert.alert('Error', 'La contraseña debe tener al menos 6 caracteres');
+      showToast('La contraseña debe tener al menos 6 caracteres', 'error');
       return false;
     }
 
     if (dni.length !== 8) {
-      Alert.alert('Error', 'El DNI debe tener 8 dígitos');
+      showToast('El DNI debe tener 8 dígitos', 'error');
       return false;
     }
 
     if (telefono.length < 9) {
-      Alert.alert('Error', 'El teléfono debe tener al menos 9 dígitos');
+      showToast('El teléfono debe tener al menos 9 dígitos', 'error');
       return false;
     }
 
     // Validar formato de email básico
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(correo)) {
-      Alert.alert('Error', 'Ingresa un correo electrónico válido');
+      showToast('Ingresa un correo electrónico válido', 'error');
       return false;
     }
 
@@ -85,11 +96,11 @@ const RegisterScreen = () => {
 
       console.log('Cuenta creada exitosamente:', response);
 
-      Alert.alert(
-        '¡Registro exitoso!',
-        'Tu cuenta ha sido creada correctamente. Ahora puedes iniciar sesión.',
-        [{ text: 'OK', onPress: () => navigation.navigate('Login' as never) }]
-      );
+      showToast('¡Registro exitoso! Iniciando sesión...', 'success');
+      
+      setTimeout(() => {
+        navigation.navigate('Login' as never);
+      }, 2000);
 
     } catch (error: any) {
       console.error('Error en registro:', error);
@@ -106,7 +117,7 @@ const RegisterScreen = () => {
         mensajeError = 'El número de teléfono ya está registrado.';
       }
 
-      Alert.alert('Error en el registro', mensajeError);
+      showToast(mensajeError, 'error');
     } finally {
       setIsLoading(false);
     }
@@ -226,6 +237,13 @@ const RegisterScreen = () => {
         </TouchableOpacity>
       </View>
       </ScrollView>
+
+      <CustomToast
+        visible={toast.visible}
+        message={toast.message}
+        type={toast.type}
+        onClose={() => setToast(prev => ({ ...prev, visible: false }))}
+      />
     </LinearGradient>
   );
 };

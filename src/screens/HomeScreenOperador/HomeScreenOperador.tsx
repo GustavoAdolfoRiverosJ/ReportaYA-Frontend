@@ -1,50 +1,12 @@
 // src/screens/HomeScreenOperador/HomeScreenOperador.tsx
 import React from 'react';
-import { View, Text, FlatList, StatusBar, ActivityIndicator, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, StatusBar, StyleSheet } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { styles } from '../../styles/HomeScreen.styles';
-import ReportCardOperador from '../../components/ReportCardOperador';
 import { useHomeScreenOperadorController } from './HomeScreenOperador.controller';
-import { useAuth } from '../../context/AuthContext';
 
 const HomeScreenOperador = () => {
-  const {
-    reportes,
-    loading,
-    error,
-    currentPage,
-    totalPages,
-    cargarReportes,
-    recargarPaginaActual,
-    nextPage,
-    prevPage,
-    cambiarEstadoARevision,
-    asignarTecnico
-  } = useHomeScreenOperadorController();
-  const { usuario, logout } = useAuth();
-
-  const handleLogout = () => {
-    Alert.alert(
-      'Cerrar Sesión',
-      '¿Estás seguro de que quieres cerrar sesión?',
-      [
-        { text: 'Cancelar', style: 'cancel' },
-        { text: 'Cerrar Sesión', style: 'destructive', onPress: logout }
-      ]
-    );
-  };
-
-  const handleCambiarEstado = (reporteId: number) => {
-    Alert.alert(
-      'Cambiar Estado',
-      '¿Cambiar el estado del reporte a "EN REVISIÓN"?',
-      [
-        { text: 'Cancelar', style: 'cancel' },
-        { text: 'Confirmar', onPress: () => cambiarEstadoARevision(reporteId) }
-      ]
-    );
-  };
+  const { usuario, navigateToGestionReportes, handleLogout } = useHomeScreenOperadorController();
 
   return (
     <LinearGradient colors={['#a27eff', '#6a9fff']} style={styles.gradient}>
@@ -54,9 +16,9 @@ const HomeScreenOperador = () => {
           <View style={styles.headerLeft}>
             <Text style={styles.headerText}>Panel de Operador</Text>
             {usuario && (
-                          <Text style={styles.userName}>
-              Operador: {usuario.nombre}
-            </Text>
+              <Text style={styles.userName}>
+                Hola, {usuario.nombre}
+              </Text>
             )}
           </View>
           <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
@@ -64,84 +26,110 @@ const HomeScreenOperador = () => {
           </TouchableOpacity>
         </View>
 
-        <View style={styles.card}>
-          {loading && reportes.length === 0 ? (
-            <View style={styles.centerContainer}>
-              <ActivityIndicator size="large" color="#a27eff" />
-              <Text style={styles.loadingText}>Cargando reportes...</Text>
+        <View style={styles.content}>
+          <Text style={styles.sectionTitle}>¿Qué deseas hacer hoy?</Text>
+          
+          <TouchableOpacity style={styles.menuCard} onPress={navigateToGestionReportes}>
+            <View style={styles.iconContainer}>
+              <Ionicons name="document-text-outline" size={40} color="#a27eff" />
             </View>
-          ) : error ? (
-            <View style={styles.centerContainer}>
-              <Text style={styles.errorText}>{error}</Text>
-              <Text style={styles.retryText} onPress={cargarReportes}>
-                Toca para reintentar
+            <View style={styles.textContainer}>
+              <Text style={styles.cardTitle}>Gestión de Reportes</Text>
+              <Text style={styles.cardDescription}>
+                Ver, asignar y gestionar los reportes ciudadanos.
               </Text>
             </View>
-          ) : reportes.length === 0 ? (
-            <View style={styles.centerContainer}>
-              <Text style={styles.emptyText}>No hay reportes disponibles</Text>
-            </View>
-          ) : (
-            <View style={{flex: 1}}>
-              <FlatList
-                data={reportes}
-                keyExtractor={(item) => item.id.toString()}
-                renderItem={({ item }) => {
-                  const ubicacionTexto = item.ubicacion?.direccion
-                    || (item.ubicacion?.latitud && item.ubicacion?.longitud
-                      ? `${item.ubicacion.latitud.toFixed(6)}, ${item.ubicacion.longitud.toFixed(6)}`
-                      : 'Sin ubicación');
+            <Ionicons name="chevron-forward" size={24} color="#ccc" />
+          </TouchableOpacity>
 
-                  return (
-                    <ReportCardOperador
-                      key={`${item.id}-${item.estado}`}
-                      id={item.id.toString()}
-                      titulo={item.titulo}
-                      tipo={item.prioridad}
-                      estado={item.estado}
-                      fecha={new Date(item.fechaCreacion).toLocaleDateString('es-PE', {
-                        day: '2-digit',
-                        month: 'short',
-                        year: 'numeric',
-                      })}
-                      ubicacion={ubicacionTexto}
-                      onCambiarEstado={() => handleCambiarEstado(item.id)}
-                      onAsignarTecnico={() => asignarTecnico(item.id)}
-                    />
-                  );
-                }}
-                refreshing={loading && reportes.length > 0}
-                onRefresh={recargarPaginaActual}
-              />
-              {totalPages > 0 && (
-                <View style={styles.paginationContainer}>
-                  <TouchableOpacity
-                    style={[styles.paginationButton, currentPage === 0 && styles.paginationButtonDisabled]}
-                    onPress={prevPage}
-                    disabled={currentPage === 0 || loading}
-                  >
-                    <Ionicons name="chevron-back-outline" size={20} color={currentPage === 0 ? '#ccc' : '#a27eff'} />
-                    <Text style={[styles.paginationButtonText, currentPage === 0 && styles.paginationButtonTextDisabled]}>Anterior</Text>
-                  </TouchableOpacity>
-                  <Text style={styles.paginationText}>
-                    Página {currentPage + 1} de {totalPages || 1}
-                  </Text>
-                  <TouchableOpacity
-                    style={[styles.paginationButton, currentPage === totalPages - 1 && styles.paginationButtonDisabled]}
-                    onPress={nextPage}
-                    disabled={currentPage === totalPages - 1 || loading}
-                  >
-                    <Text style={[styles.paginationButtonText, currentPage === totalPages - 1 && styles.paginationButtonTextDisabled]}>Siguiente</Text>
-                    <Ionicons name="chevron-forward-outline" size={20} color={currentPage === totalPages - 1 ? '#ccc' : '#a27eff'} />
-                  </TouchableOpacity>
-                </View>
-              )}
-            </View>
-          )}
+          {/* Aquí se pueden agregar más opciones en el futuro */}
         </View>
       </View>
     </LinearGradient>
   );
 };
+
+const styles = StyleSheet.create({
+  gradient: {
+    flex: 1,
+  },
+  container: {
+    flex: 1,
+    padding: 20,
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 30,
+    marginTop: 10,
+  },
+  headerLeft: {
+    flex: 1,
+  },
+  headerText: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: 'white',
+  },
+  userName: {
+    fontSize: 16,
+    color: 'rgba(255, 255, 255, 0.9)',
+    marginTop: 5,
+  },
+  logoutButton: {
+    padding: 10,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    borderRadius: 12,
+  },
+  content: {
+    flex: 1,
+  },
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: 'white',
+    marginBottom: 20,
+  },
+  menuCard: {
+    backgroundColor: 'white',
+    borderRadius: 20,
+    padding: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 5,
+    marginBottom: 15,
+  },
+  iconContainer: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: '#f0eaff',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 15,
+  },
+  textContainer: {
+    flex: 1,
+  },
+  cardTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 5,
+  },
+  cardDescription: {
+    fontSize: 14,
+    color: '#666',
+    lineHeight: 20,
+  },
+});
 
 export default HomeScreenOperador;

@@ -3,7 +3,7 @@ import httpService from './httpService';
 import { CrearAsignacionRequest, AsignacionResponse } from '../types/asignacion.types';
 
 class ServicioAsignaciones {
-  private readonly ENDPOINT = '/asignaciones';
+  private readonly ENDPOINT = '/api/asignaciones';
 
   /**
    * Crear una nueva asignación (triaje)

@@ -2,6 +2,7 @@
 import React from 'react';
 import { Modal, View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { useNavigation } from '@react-navigation/native';
 import { styles } from './ReportDetailModal.styles';
 import { ReporteResponse } from '../types';
 
@@ -12,7 +13,14 @@ interface ReportDetailModalProps {
 }
 
 const ReportDetailModal: React.FC<ReportDetailModalProps> = ({ visible, reporte, onClose }) => {
+  const navigation = useNavigation();
+
   if (!reporte) return null;
+
+  const handleVerHistorial = () => {
+    onClose();
+    (navigation as any).navigate('Historial', { reporteId: reporte.id });
+  };
 
   const getStatusStyle = (estado: string) => {
     switch (estado.toUpperCase()) {
@@ -119,6 +127,23 @@ const ReportDetailModal: React.FC<ReportDetailModalProps> = ({ visible, reporte,
                 <Text style={styles.detailValue}>{reporte.nombreCiudadano}</Text>
               </View>
             </View>
+
+            <TouchableOpacity 
+              style={{
+                backgroundColor: '#a27eff',
+                padding: 12,
+                borderRadius: 8,
+                flexDirection: 'row',
+                justifyContent: 'center',
+                alignItems: 'center',
+                marginTop: 20,
+                marginBottom: 10
+              }}
+              onPress={handleVerHistorial}
+            >
+              <Ionicons name="time-outline" size={20} color="white" style={{ marginRight: 8 }} />
+              <Text style={{ color: 'white', fontWeight: 'bold' }}>Ver Historial de Cambios</Text>
+            </TouchableOpacity>
           </ScrollView>
 
           <TouchableOpacity style={styles.closeButtonBottom} onPress={onClose}>

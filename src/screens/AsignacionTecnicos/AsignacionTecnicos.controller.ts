@@ -29,6 +29,8 @@ export const useAsignacionTecnicosController = () => {
 
   const { reporteId } = route.params as { reporteId: number };
 
+  const [showSuccess, setShowSuccess] = useState(false);
+
   const asignarTecnico = async (tecnicoId: number) => {
     if (!usuario?.id || !reporteId) {
       setAsignacionError('Información de usuario o reporte incompleta');
@@ -45,14 +47,17 @@ export const useAsignacionTecnicosController = () => {
         tecnicoId,
       });
 
-      // Cambiar el estado del reporte a PROCESO
-      await ServicioReportes.cambiarEstadoReporte(reporteId, EstadoReporte.PROCESO);
-
-      // Actualizar el estado en el contexto del operador
+      // El backend cambia automáticamente el estado a PROCESO al asignar
+      // Solo actualizamos el estado localmente para reflejar el cambio
       actualizarEstadoReporte(reporteId, EstadoReporte.PROCESO);
 
-      // Navegar de vuelta al panel de operador
-      (navigation as any).navigate('HomeScreenOperador');
+      setShowSuccess(true);
+      
+      // Esperar un momento para que el usuario vea el mensaje de éxito antes de volver
+      setTimeout(() => {
+        navigation.goBack();
+      }, 1500);
+
     } catch (err: any) {
       setAsignacionError(err.message || 'Error al asignar técnico');
     } finally {
@@ -72,6 +77,8 @@ export const useAsignacionTecnicosController = () => {
     reporteId,
     currentPage,
     totalPages,
+    showSuccess,
+    setShowSuccess,
     cargarTecnicos: () => cargarTecnicos(0),
     recargarPaginaActual: () => cargarTecnicos(currentPage), // Para recargar la página actual
     nextPage,

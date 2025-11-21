@@ -1,7 +1,7 @@
 // src/context/OperadorReportesContext.tsx
 import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
 import ServicioReportes from '../servicios/ServicioReportes';
-import { ReporteResponse, Page } from '../types';
+import { ReporteResponse, Page, EstadoReporteType } from '../types';
 
 interface OperadorReportesContextType {
   reportes: ReporteResponse[];
@@ -9,10 +9,13 @@ interface OperadorReportesContextType {
   error: string | null;
   currentPage: number;
   totalPages: number;
+  filtroEstado: EstadoReporteType | null;
+  setFiltroEstado: (estado: EstadoReporteType | null) => void;
   cargarReportes: (page?: number) => Promise<void>;
   nextPage: () => Promise<void>;
   prevPage: () => Promise<void>;
   cambiarEstadoARevision: (reporteId: number) => Promise<void>;
+  rechazarReporte: (reporteId: number, motivo: string) => Promise<void>;
   actualizarEstadoReporte: (reporteId: number, nuevoEstado: string) => void;
   limpiarReportes: () => void;
 }
@@ -25,36 +28,42 @@ export const OperadorReportesProvider: React.FC<{ children: ReactNode }> = ({ ch
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState<number>(0);
   const [totalPages, setTotalPages] = useState<number>(0);
-  const [pagesCache, setPagesCache] = useState<Map<number, ReporteResponse[]>>(new Map());
+  const [filtroEstado, setFiltroEstadoState] = useState<EstadoReporteType | null>(null);
 
   const cargarReportes = useCallback(async (page: number = 0) => {
-    // Verificar si la página ya está en cache
-    if (pagesCache.has(page)) {
-      setReportes(pagesCache.get(page)!);
-      setCurrentPage(page);
-      console.log('Cargado desde cache - page:', page);
-      return;
-    }
-
     try {
       setLoading(true);
       setError(null);
-      const pageData: Page<ReporteResponse> = await ServicioReportes.obtenerTodosReportes(page);
-
-      // Guardar en cache
-      setPagesCache(prev => new Map(prev.set(page, pageData.content)));
+      // Si hay filtro, usarlo
+      const estado = filtroEstado || undefined;
+      const pageData: Page<ReporteResponse> = await ServicioReportes.obtenerTodosReportes(page, estado);
 
       setReportes(pageData.content);
-      setCurrentPage(page); // Usar la página solicitada, no la que devuelve la API
+      setCurrentPage(page);
       setTotalPages(pageData.totalPages);
-      console.log('Operador totalPages:', pageData.totalPages, 'currentPage:', pageData.number, 'content length:', pageData.content.length);
+      console.log('Operador totalPages:', pageData.totalPages, 'currentPage:', pageData.number, 'content length:', pageData.content.length, 'filtro:', estado);
     } catch (err: any) {
       setError(err.message || 'Error al cargar los reportes');
       console.error('Error en OperadorReportesContext:', err);
     } finally {
       setLoading(false);
     }
-  }, [pagesCache]);
+  }, [filtroEstado]);
+
+  const setFiltroEstado = useCallback((estado: EstadoReporteType | null) => {
+    setFiltroEstadoState(estado);
+    // Al cambiar filtro, recargar desde página 0
+    // Nota: cargarReportes depende de filtroEstado, pero aquí estamos actualizando el estado.
+    // Necesitamos un useEffect o llamar a cargarReportes después de que el estado se actualice.
+    // Sin embargo, como cargarReportes usa el valor del estado, y setState es async, mejor pasar el valor directamente o usar useEffect.
+    // Para simplificar, usaremos un useEffect en el componente o aquí.
+    // Mejor opción: useEffect que escuche cambios en filtroEstado.
+  }, []);
+
+  // Efecto para recargar cuando cambia el filtro
+  React.useEffect(() => {
+    cargarReportes(0);
+  }, [filtroEstado]);
 
   const nextPage = useCallback(async () => {
     if (currentPage < totalPages - 1 && !loading) {
@@ -70,32 +79,29 @@ export const OperadorReportesProvider: React.FC<{ children: ReactNode }> = ({ ch
 
   const cambiarEstadoARevision = useCallback(async (reporteId: number) => {
     try {
-      // Actualizar el estado local inmediatamente para feedback visual
-      setReportes(prev =>
-        prev.map(reporte =>
-          reporte.id === reporteId
-            ? { ...reporte, estado: 'REVISION' as any }
-            : reporte
-        )
-      );
-
-      // Hacer la llamada al servidor en segundo plano
-      await ServicioReportes.cambiarEstadoReporte(reporteId, 'REVISION' as any);
-
-      // Invalidar cache completo para que la próxima carga sea fresca
-      setPagesCache(new Map());
+      setLoading(true);
+      await ServicioReportes.cambiarEstadoReporte(reporteId, 'REVISION');
+      await cargarReportes(currentPage);
     } catch (err: any) {
       setError(err.message || 'Error al cambiar estado del reporte');
-      // Revertir el cambio local si falla
+    } finally {
+      setLoading(false);
+    }
+  }, [currentPage, cargarReportes]);
+
+  const rechazarReporte = useCallback(async (reporteId: number, motivo: string) => {
+    try {
+      setLoading(true);
+      await ServicioReportes.rechazarReporte(reporteId, motivo);
       await cargarReportes(currentPage);
+    } catch (err: any) {
+      setError(err.message || 'Error al rechazar reporte');
+    } finally {
+      setLoading(false);
     }
   }, [currentPage, cargarReportes]);
 
   const actualizarEstadoReporte = useCallback((reporteId: number, nuevoEstado: string) => {
-    // Invalidar cache para forzar recarga en próxima navegación
-    setPagesCache(new Map());
-    
-    // Actualizar el estado actual
     setReportes(prev =>
       prev.map(reporte =>
         reporte.id === reporteId
@@ -109,7 +115,7 @@ export const OperadorReportesProvider: React.FC<{ children: ReactNode }> = ({ ch
     setReportes([]);
     setCurrentPage(0);
     setTotalPages(0);
-    setPagesCache(new Map());
+    setFiltroEstadoState(null);
     setError(null);
   }, []);
 
@@ -121,10 +127,13 @@ export const OperadorReportesProvider: React.FC<{ children: ReactNode }> = ({ ch
         error,
         currentPage,
         totalPages,
+        filtroEstado,
+        setFiltroEstado,
         cargarReportes,
         nextPage,
         prevPage,
         cambiarEstadoARevision,
+        rechazarReporte,
         actualizarEstadoReporte,
         limpiarReportes
       }}

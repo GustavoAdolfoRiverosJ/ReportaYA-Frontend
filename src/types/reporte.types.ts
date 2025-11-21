@@ -66,3 +66,21 @@ export interface FiltrosReporte {
   fechaDesde?: string;            // Fecha desde (ISO 8601)
   fechaHasta?: string;            // Fecha hasta (ISO 8601)
 }
+
+/**
+ * Historial de cambios de estado de un reporte
+ */
+export interface HistorialEstado {
+  id: number;
+  reporteId: number;
+  estadoAnterior: EstadoReporteType | null;
+  estadoNuevo: EstadoReporteType;
+  fechaCambio: string; // ISO 8601
+}
+
+/**
+ * Solicitud para rechazar un reporte
+ */
+export interface RechazarReporteRequest {
+  motivo: string;
+}

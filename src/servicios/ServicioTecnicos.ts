@@ -3,7 +3,7 @@ import httpService from './httpService';
 import { TecnicoResponse, Page } from '../types';
 
 class ServicioTecnicos {
-  private readonly ENDPOINT = '/tecnicos';
+  private readonly ENDPOINT = '/api/tecnicos';
 
   /**
    * Obtener todos los técnicos (paginados)

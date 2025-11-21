@@ -27,3 +27,6 @@ export * from './tecnico.types';
 
 // Exportar tipos de autenticación
 export * from './auth.types';
+
+// Exportar tipos de notificación
+export * from './notificacion.types';

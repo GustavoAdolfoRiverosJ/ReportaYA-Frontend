@@ -8,7 +8,7 @@ import {
 } from '../types';
 
 class ServicioReportes {
-  private readonly ENDPOINT = '/reportes';
+  private readonly ENDPOINT = '/api/reportes';
 
   /**
    * Crear un nuevo reporte
@@ -42,17 +42,53 @@ class ServicioReportes {
   }
 
   /**
-   * Obtener todos los reportes (paginados)
+   * Obtener todos los reportes (paginados) con filtros opcionales
    * @param page - Número de página (0-indexed)
+   * @param estado - (Opcional) Filtrar por estado
    * @returns Promise con página de reportes
    */
-  async obtenerTodosReportes(page: number = 0): Promise<Page<ReporteResponse>> {
+  async obtenerTodosReportes(page: number = 0, estado?: string): Promise<Page<ReporteResponse>> {
     try {
-      const response = await httpService.get<Page<ReporteResponse>>(`${this.ENDPOINT}?page=${page}&size=10`);
+      let url = `${this.ENDPOINT}?page=${page}&size=10`;
+      if (estado) {
+        url += `&estado=${estado}`;
+      }
+      const response = await httpService.get<Page<ReporteResponse>>(url);
       return response;
     } catch (error: any) {
       console.error('Error al obtener todos los reportes:', error.response?.data || error.message);
       throw new Error(error.response?.data?.message || 'Error al obtener los reportes');
+    }
+  }
+
+  /**
+   * Rechazar un reporte
+   * @param id - ID del reporte
+   * @param motivo - Motivo del rechazo
+   * @returns Promise con el reporte actualizado
+   */
+  async rechazarReporte(id: number, motivo: string): Promise<ReporteResponse> {
+    try {
+      const response = await httpService.post<ReporteResponse>(`${this.ENDPOINT}/${id}/rechazar?motivo=${encodeURIComponent(motivo)}`);
+      return response;
+    } catch (error: any) {
+      console.error('Error al rechazar reporte:', error.response?.data || error.message);
+      throw new Error(error.response?.data?.message || 'Error al rechazar el reporte');
+    }
+  }
+
+  /**
+   * Obtener historial de estados de un reporte
+   * @param reporteId - ID del reporte
+   * @returns Promise con lista de historial
+   */
+  async obtenerHistorialEstados(reporteId: number): Promise<any[]> {
+    try {
+      const response = await httpService.get<any[]>(`/historial-estados/reporte/${reporteId}`);
+      return response;
+    } catch (error: any) {
+      console.error('Error al obtener historial:', error.response?.data || error.message);
+      throw new Error(error.response?.data?.message || 'Error al obtener historial');
     }
   }
 
