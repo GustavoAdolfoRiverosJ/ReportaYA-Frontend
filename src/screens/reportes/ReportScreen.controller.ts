@@ -51,6 +51,8 @@ export const useReportController = () => {
       const reporteData: CrearReporteRequest = {
         titulo: tituloMap[form.tipo] || 'Reporte sin especificar',
         descripcion: form.descripcion,
+        tipo: form.tipo,
+        urlFoto: form.imagen || undefined,
         cuentaId: usuario.id, // Usar ID del usuario autenticado
         ubicacion: {
           latitud: form.ubicacion.lat,

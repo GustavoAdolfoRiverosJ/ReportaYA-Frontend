@@ -9,6 +9,8 @@ export interface Reporte {
   id?: number;                    // Opcional al crear, presente en respuesta
   titulo: string;                 // OBLIGATORIO
   descripcion: string;            // OBLIGATORIO
+  tipo?: string;                  // Nuevo campo
+  urlFoto?: string;               // Nuevo campo
   cuentaId: number;               // OBLIGATORIO - ID del ciudadano
   nombreCiudadano?: string;       // Solo en respuesta del servidor
   prioridad?: PrioridadType;      // Opcional (default: MEDIA)
@@ -24,6 +26,8 @@ export interface Reporte {
 export interface CrearReporteRequest {
   titulo: string;                 // OBLIGATORIO
   descripcion: string;            // OBLIGATORIO
+  tipo?: string;                  // Nuevo campo
+  urlFoto?: string;               // Nuevo campo
   cuentaId: number;               // OBLIGATORIO - ID del ciudadano
   ubicacion: CrearUbicacionRequest;  // OBLIGATORIO - Solo campos necesarios
   prioridad?: PrioridadType;      // Opcional (default: MEDIA en backend)
@@ -36,6 +40,8 @@ export interface ReporteResponse {
   id: number;                     // Siempre presente en respuesta
   titulo: string;
   descripcion: string;
+  tipo?: string;                  // Nuevo campo
+  urlFoto?: string;               // Nuevo campo
   cuentaId: number;
   nombreCiudadano: string;        // Siempre presente en respuesta
   prioridad: PrioridadType;       // Siempre presente en respuesta

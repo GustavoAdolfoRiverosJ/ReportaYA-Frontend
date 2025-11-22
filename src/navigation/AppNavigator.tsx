@@ -1,4 +1,3 @@
-// src/navigation/AppNavigator.tsx
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -15,6 +14,8 @@ import HomeScreenOperador from '../screens/HomeScreenOperador/HomeScreenOperador
 import GestionReportes from '../screens/GestionReportes/GestionReportes';
 import AsignacionTecnicos from '../screens/AsignacionTecnicos/AsignacionTecnicos';
 import HistorialScreen from '../screens/Historial/HistorialScreen';
+import MapScreen from '../screens/Home/MapScreen';
+import ReportDetailScreen from '../screens/reportes/ReportDetailScreen';
 
 export type RootStackParamList = {
   Login: undefined;
@@ -22,13 +23,16 @@ export type RootStackParamList = {
   MainTabs: undefined;
   HomeScreenOperador: undefined;
   GestionReportes: undefined;
-  AsignacionTecnicos: { reporteId: number };
-  Historial: { reporteId: number };
+  AsignacionTecnicos: undefined;
+  Historial: undefined;
+  ReportDetail: { reporteId: number };
 };
 
-type MainTabParamList = {
+export type MainTabParamList = {
   Home: undefined;
-  Report: undefined;
+  Reportar: undefined;
+  Mapa: undefined;
+  Historial: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -36,17 +40,31 @@ const Tab = createBottomTabNavigator<MainTabParamList>();
 
 function MainTabs() {
   return (
-    <Tab.Navigator>
-      <Tab.Screen 
-        name="Home" 
-        component={HomeScreen} 
-        options={{ title: 'Mis Reportes', tabBarIcon: ({ color }) => <Ionicons name="home" color={color} size={20} /> }}
-      />
-      <Tab.Screen 
-        name="Report" 
-        component={ReportScreen} 
-        options={{ title: 'Crear Reporte', tabBarIcon: ({ color }) => <Ionicons name="add-circle" color={color} size={24} /> }}
-      />
+    <Tab.Navigator
+      screenOptions={({ route }) => ({
+        tabBarIcon: ({ focused, color, size }) => {
+          let iconName;
+
+          if (route.name === 'Home') {
+            iconName = focused ? 'home' : 'home-outline';
+          } else if (route.name === 'Reportar') {
+            iconName = focused ? 'add-circle' : 'add-circle-outline';
+          } else if (route.name === 'Mapa') {
+            iconName = focused ? 'map' : 'map-outline';
+          } else if (route.name === 'Historial') {
+            iconName = focused ? 'time' : 'time-outline';
+          }
+
+          return <Ionicons name={iconName as string} size={size} color={color} />;
+        },
+        tabBarActiveTintColor: '#6a9fff',
+        tabBarInactiveTintColor: 'gray',
+      })}
+    >
+      <Tab.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
+      <Tab.Screen name="Reportar" component={ReportScreen} options={{ title: 'Nuevo Reporte' }} />
+      <Tab.Screen name="Mapa" component={MapScreen} options={{ title: 'Mapa de Reportes' }} />
+      <Tab.Screen name="Historial" component={HistorialScreen} options={{ title: 'Mis Reportes' }} />
     </Tab.Navigator>
   );
 }
@@ -71,13 +89,12 @@ function AppNavigatorContent() {
     );
   }
 
-  // Navegación condicional basada en el tipo de cuenta
   const getInitialRoute = () => {
     switch (usuario.tipoCuenta) {
       case 'OPERADOR_MUNICIPAL':
         return 'HomeScreenOperador';
       case 'TECNICO':
-        return 'MainTabs'; // Por ahora técnicos usan la misma interfaz que ciudadanos
+        return 'MainTabs';
       case 'CIUDADANO':
       default:
         return 'MainTabs';
@@ -93,6 +110,7 @@ function AppNavigatorContent() {
       <Stack.Screen name="GestionReportes" component={GestionReportes} options={{ headerShown: false }} />
       <Stack.Screen name="AsignacionTecnicos" component={AsignacionTecnicos} options={{ title: 'Asignar Técnico' }} />
       <Stack.Screen name="Historial" component={HistorialScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="ReportDetail" component={ReportDetailScreen} options={{ title: 'Detalle de Reporte' }} />
     </Stack.Navigator>
   );
 }

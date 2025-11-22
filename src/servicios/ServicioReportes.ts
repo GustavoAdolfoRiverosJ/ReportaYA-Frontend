@@ -45,19 +45,37 @@ class ServicioReportes {
    * Obtener todos los reportes (paginados) con filtros opcionales
    * @param page - Número de página (0-indexed)
    * @param estado - (Opcional) Filtrar por estado
+   * @param tipo - (Opcional) Filtrar por tipo
+   * @param prioridad - (Opcional) Filtrar por prioridad
    * @returns Promise con página de reportes
    */
-  async obtenerTodosReportes(page: number = 0, estado?: string): Promise<Page<ReporteResponse>> {
+  async obtenerTodosReportes(page: number = 0, estado?: string, tipo?: string, prioridad?: string): Promise<Page<ReporteResponse>> {
     try {
       let url = `${this.ENDPOINT}?page=${page}&size=10`;
-      if (estado) {
-        url += `&estado=${estado}`;
-      }
+      if (estado) url += `&estado=${estado}`;
+      if (tipo) url += `&tipo=${tipo}`;
+      if (prioridad) url += `&prioridad=${prioridad}`;
+
       const response = await httpService.get<Page<ReporteResponse>>(url);
       return response;
     } catch (error: any) {
       console.error('Error al obtener todos los reportes:', error.response?.data || error.message);
       throw new Error(error.response?.data?.message || 'Error al obtener los reportes');
+    }
+  }
+
+  /**
+   * Obtener un reporte por su ID
+   * @param id - ID del reporte
+   * @returns Promise con el reporte
+   */
+  async obtenerReportePorId(id: number): Promise<ReporteResponse> {
+    try {
+      const response = await httpService.get<ReporteResponse>(`${this.ENDPOINT}/${id}`);
+      return response;
+    } catch (error: any) {
+      console.error('Error al obtener reporte por ID:', error.response?.data || error.message);
+      throw new Error(error.response?.data?.message || 'Error al obtener el reporte');
     }
   }
 
