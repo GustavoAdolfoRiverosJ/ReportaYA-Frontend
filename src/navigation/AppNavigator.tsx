@@ -12,7 +12,9 @@ import RegisterScreen from '../screens/Auth/RegisterScreen';
 import HomeScreen from '../screens/Home/HomeScreen';
 import ReportScreen from '../screens/reportes/ReportScreen';
 import HomeScreenOperador from '../screens/HomeScreenOperador/HomeScreenOperador';
+import HomeScreenTecnico from '../screens/HomeScreenTecnico/HomeScreenTecnico';
 import GestionReportes from '../screens/GestionReportes/GestionReportes';
+import TecnicoReportes from '../screens/TecnicoReportes/TecnicoReportes';
 import AsignacionTecnicos from '../screens/AsignacionTecnicos/AsignacionTecnicos';
 import AuditarReporte from '../screens/AuditarReporte/AuditarReporte';
 import HistorialScreen from '../screens/Historial/HistorialScreen';
@@ -22,7 +24,9 @@ export type RootStackParamList = {
   Register: undefined;
   MainTabs: undefined;
   HomeScreenOperador: undefined;
+  HomeScreenTecnico: undefined;
   GestionReportes: undefined;
+  TecnicoReportes: undefined;
   AsignacionTecnicos: { reporteId: number };
   AuditarReporte: { reporteId: number };
   Historial: { reporteId: number };
@@ -79,7 +83,7 @@ function AppNavigatorContent() {
       case 'OPERADOR_MUNICIPAL':
         return 'HomeScreenOperador';
       case 'TECNICO':
-        return 'MainTabs'; // Por ahora técnicos usan la misma interfaz que ciudadanos
+        return 'HomeScreenTecnico';
       case 'CIUDADANO':
       default:
         return 'MainTabs';
@@ -92,7 +96,9 @@ function AppNavigatorContent() {
       <Stack.Screen name="Register" component={RegisterScreen} options={{ headerShown: false }} />
       <Stack.Screen name="MainTabs" component={MainTabs} options={{ headerShown: false }} />
       <Stack.Screen name="HomeScreenOperador" component={HomeScreenOperador} options={{ headerShown: false }} />
+      <Stack.Screen name="HomeScreenTecnico" component={HomeScreenTecnico} options={{ headerShown: false }} />
       <Stack.Screen name="GestionReportes" component={GestionReportes} options={{ headerShown: false }} />
+      <Stack.Screen name="TecnicoReportes" component={TecnicoReportes} options={{ headerShown: false }} />
       <Stack.Screen name="AsignacionTecnicos" component={AsignacionTecnicos} options={{ title: 'Asignar Técnico' }} />
       <Stack.Screen name="AuditarReporte" component={AuditarReporte} options={{ title: 'Auditar Reporte' }} />
       <Stack.Screen name="Historial" component={HistorialScreen} options={{ headerShown: false }} />
