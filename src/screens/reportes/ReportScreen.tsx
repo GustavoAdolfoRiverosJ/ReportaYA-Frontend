@@ -1,7 +1,7 @@
 // src/screens/reportes/ReportScreen.tsx
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, PermissionsAndroid, Platform, Image, ScrollView, StatusBar } from 'react-native';
-import Geolocation from '@react-native-community/geolocation';
+import Geolocation from 'react-native-geolocation-service';
 import { launchCamera } from 'react-native-image-picker';
 import { useNavigation } from '@react-navigation/native';
 import LinearGradient from 'react-native-linear-gradient';

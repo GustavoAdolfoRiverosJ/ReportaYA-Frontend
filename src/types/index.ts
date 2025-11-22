@@ -25,8 +25,14 @@ export * from './asignacion.types';
 // Exportar tipos de técnico
 export * from './tecnico.types';
 
+// Exportar tipos de técnico - completar
+export * from './tecnico-completo.types';
+
 // Exportar tipos de autenticación
 export * from './auth.types';
 
 // Exportar tipos de notificación
 export * from './notificacion.types';
+
+// Exportar tipos de auditoría de reporte
+export * from './auditor-reporte.types';

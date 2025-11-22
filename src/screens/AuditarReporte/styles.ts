@@ -1,0 +1,248 @@
+import { StyleSheet } from 'react-native';
+
+export const auditStyles = StyleSheet.create({
+  section: {
+    marginBottom: 24,
+  },
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#333',
+    marginBottom: 12,
+  },
+  infoBox: {
+    marginBottom: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    backgroundColor: '#f5f5f5',
+    borderRadius: 8,
+    borderLeftWidth: 4,
+    borderLeftColor: '#a27eff',
+  },
+  infoLabel: {
+    fontSize: 12,
+    color: '#999',
+    fontWeight: '600',
+  },
+  infoValue: {
+    fontSize: 14,
+    color: '#333',
+    fontWeight: '500',
+    marginTop: 4,
+  },
+  prioridad: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    backgroundColor: '#a27eff',
+    color: 'white',
+    borderRadius: 6,
+    alignSelf: 'flex-start',
+  },
+  contadorRechazosBadge: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 6,
+    alignSelf: 'flex-start',
+    marginTop: 4,
+  },
+  contadorRechazosText: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: 'white',
+  },
+  comentarioBox: {
+    padding: 12,
+    backgroundColor: '#f9f9f9',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
+  },
+  comentarioText: {
+    fontSize: 14,
+    color: '#333',
+    lineHeight: 20,
+  },
+  noFotosText: {
+    fontSize: 14,
+    color: '#999',
+    textAlign: 'center',
+    paddingVertical: 16,
+  },
+  fotosGrid: {
+    gap: 12,
+  },
+  fotoContainer: {
+    backgroundColor: '#f5f5f5',
+    borderRadius: 8,
+    overflow: 'hidden',
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+  },
+  fotoHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    borderLeftWidth: 4,
+    backgroundColor: '#fafafa',
+  },
+  fotoTipo: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#333',
+  },
+  fotoThumbnail: {
+    width: '100%',
+    height: 200,
+    backgroundColor: '#e0e0e0',
+  },
+  fotoDescripcion: {
+    padding: 12,
+    fontSize: 13,
+    color: '#666',
+    fontWeight: '500',
+  },
+  actionButtons: {
+    flexDirection: 'row',
+    gap: 12,
+    marginVertical: 20,
+  },
+  button: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 12,
+    borderRadius: 8,
+    gap: 8,
+  },
+  buttonAceptar: {
+    backgroundColor: '#4CAF50',
+  },
+  buttonRechazar: {
+    backgroundColor: '#FF6B6B',
+  },
+  buttonDisabled: {
+    opacity: 0.6,
+  },
+  buttonText: {
+    color: 'white',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  retryButton: {
+    marginTop: 16,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    backgroundColor: '#a27eff',
+    borderRadius: 8,
+  },
+  retryButtonText: {
+    color: 'white',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  // Modal para ver foto completa
+  fotoModalContainer: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.9)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  fotoModalBackdrop: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+  fotoModalContent: {
+    width: '90%',
+    backgroundColor: '#1a1a1a',
+    borderRadius: 12,
+    padding: 16,
+    alignItems: 'center',
+  },
+  fotoModalClose: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    zIndex: 10,
+  },
+  fotoModalImage: {
+    width: '100%',
+    height: 400,
+    borderRadius: 8,
+    marginTop: 20,
+  },
+  fotoModalTipo: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: 'white',
+    marginTop: 12,
+  },
+  fotoModalDescripcion: {
+    fontSize: 14,
+    color: '#ccc',
+    marginTop: 8,
+    textAlign: 'center',
+  },
+  // Modal para rechazar
+  rechazarModalContainer: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'flex-end',
+  },
+  rechazarModalContent: {
+    backgroundColor: 'white',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    padding: 20,
+    paddingBottom: 30,
+  },
+  rechazarModalTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#333',
+    marginBottom: 16,
+  },
+  rechazarTextInput: {
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 8,
+    padding: 12,
+    fontSize: 14,
+    color: '#333',
+    marginBottom: 16,
+    textAlignVertical: 'top',
+  },
+  rechazarModalButtons: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  rechazarButton: {
+    flex: 1,
+    paddingVertical: 12,
+    borderRadius: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  rechazarButtonCancel: {
+    backgroundColor: '#f0f0f0',
+  },
+  rechazarButtonConfirm: {
+    backgroundColor: '#FF6B6B',
+  },
+  rechazarButtonDisabled: {
+    opacity: 0.5,
+  },
+  rechazarButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#333',
+  },
+});

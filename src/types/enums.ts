@@ -21,6 +21,16 @@ export enum Prioridad {
   ALTA = 'ALTA'      // Prioridad alta
 }
 
+/**
+ * Tipos de foto en un reporte
+ */
+export enum TipoFoto {
+  INICIAL = 'INICIAL',   // Foto inicial del problema
+  PROCESO = 'PROCESO',   // Foto durante la solución
+  FINAL = 'FINAL'        // Foto del resultado final
+}
+
 // Type aliases para uso flexible
-export type EstadoReporteType = 'PENDIENTE' | 'REVISION' | 'PROCESO' | 'RESUELTA' | 'CERRADA' | 'RECHAZADO';
+export type EstadoReporteType = 'PENDIENTE' | 'REVISION' | 'PROCESO' | 'RESUELTA' | 'CERRADA' | 'RECHAZADO' | 'RECHAZADO_AUDITO';
 export type PrioridadType = 'BAJA' | 'MEDIA' | 'ALTA';
+export type TipoFotoType = 'INICIAL' | 'PROCESO' | 'FINAL';

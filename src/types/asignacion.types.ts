@@ -1,10 +1,13 @@
 // src/types/asignacion.types.ts
 
+import { PrioridadType } from './enums';
+
 export interface Asignacion {
   id?: number;
   reporteId: number;
   operadorId: number;
   tecnicoId: number;
+  prioridad: PrioridadType;
   reporteTitulo?: string;
   operadorNombre?: string;
   tecnicoNombre?: string;
@@ -16,6 +19,7 @@ export interface CrearAsignacionRequest {
   reporteId: number;
   operadorId: number;
   tecnicoId: number;
+  prioridad: PrioridadType;
 }
 
 export interface AsignacionResponse {
@@ -23,6 +27,7 @@ export interface AsignacionResponse {
   reporteId: number;
   operadorId: number;
   tecnicoId: number;
+  prioridad: PrioridadType;
   reporteTitulo: string;
   operadorNombre: string;
   tecnicoNombre: string;

@@ -27,7 +27,8 @@ const GestionReportes = () => {
     prevPage,
     cambiarEstadoARevision,
     rechazarReporte,
-    asignarTecnico
+    asignarTecnico,
+    auditarReporte,
   } = useGestionReportesController();
   
   const navigation = useNavigation();
@@ -44,6 +45,11 @@ const GestionReportes = () => {
   const showToast = (message: string, type: 'success' | 'error' | 'info' = 'success') => {
     setToast({ visible: true, message, type });
   };
+
+  // Log para debuguear estados
+  React.useEffect(() => {
+    console.log('📊 GestionReportes - Estados en lista:', reportes.map(r => ({ id: r.id, estado: r.estado })));
+  }, [reportes]);
 
   const handleCambiarEstadoPress = (reporteId: number) => {
     setSelectedReporteId(reporteId);
@@ -78,7 +84,7 @@ const GestionReportes = () => {
     }
   };
 
-  const estados: (EstadoReporteType | 'TODOS')[] = ['TODOS', 'PENDIENTE', 'REVISION', 'PROCESO', 'RESUELTA', 'CERRADA', 'RECHAZADO'];
+  const estados: (EstadoReporteType | 'TODOS')[] = ['TODOS', 'PENDIENTE', 'REVISION', 'PROCESO', 'RESUELTA', 'CERRADA', 'RECHAZADO', 'RECHAZADO_AUDITO'];
 
   return (
     <LinearGradient colors={['#a27eff', '#6a9fff']} style={styles.gradient}>
@@ -163,6 +169,7 @@ const GestionReportes = () => {
                       ubicacion={ubicacionTexto}
                       onCambiarEstado={() => handleCambiarEstadoPress(item.id)}
                       onAsignarTecnico={() => asignarTecnico(item.id)}
+                      onAuditar={() => auditarReporte(item.id)}
                       onRechazar={() => handleRechazarPress(item.id)}
                     />
                   );

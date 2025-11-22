@@ -14,6 +14,7 @@ import ReportScreen from '../screens/reportes/ReportScreen';
 import HomeScreenOperador from '../screens/HomeScreenOperador/HomeScreenOperador';
 import GestionReportes from '../screens/GestionReportes/GestionReportes';
 import AsignacionTecnicos from '../screens/AsignacionTecnicos/AsignacionTecnicos';
+import AuditarReporte from '../screens/AuditarReporte/AuditarReporte';
 import HistorialScreen from '../screens/Historial/HistorialScreen';
 
 export type RootStackParamList = {
@@ -23,6 +24,7 @@ export type RootStackParamList = {
   HomeScreenOperador: undefined;
   GestionReportes: undefined;
   AsignacionTecnicos: { reporteId: number };
+  AuditarReporte: { reporteId: number };
   Historial: { reporteId: number };
 };
 
@@ -92,6 +94,7 @@ function AppNavigatorContent() {
       <Stack.Screen name="HomeScreenOperador" component={HomeScreenOperador} options={{ headerShown: false }} />
       <Stack.Screen name="GestionReportes" component={GestionReportes} options={{ headerShown: false }} />
       <Stack.Screen name="AsignacionTecnicos" component={AsignacionTecnicos} options={{ title: 'Asignar Técnico' }} />
+      <Stack.Screen name="AuditarReporte" component={AuditarReporte} options={{ title: 'Auditar Reporte' }} />
       <Stack.Screen name="Historial" component={HistorialScreen} options={{ headerShown: false }} />
     </Stack.Navigator>
   );

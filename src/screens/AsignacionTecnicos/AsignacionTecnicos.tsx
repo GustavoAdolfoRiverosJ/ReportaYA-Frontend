@@ -1,6 +1,6 @@
 // src/screens/AsignacionTecnicos/AsignacionTecnicos.tsx
 import React, { useState } from 'react';
-import { View, Text, FlatList, StatusBar, ActivityIndicator, TouchableOpacity } from 'react-native';
+import { View, Text, FlatList, StatusBar, ActivityIndicator, TouchableOpacity, ScrollView, Modal } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import LinearGradient from 'react-native-linear-gradient';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -9,6 +9,15 @@ import TecnicoCard from '../../components/TecnicoCard';
 import CustomToast from '../../components/CustomToast';
 import ConfirmationModal from '../../components/ConfirmationModal';
 import { useAsignacionTecnicosController } from './AsignacionTecnicos.controller';
+import { Prioridad } from '../../types/enums';
+import { PrioridadType } from '../../types';
+import { prioridadStyles } from './styles';
+
+const prioridadOptions: { label: string; value: PrioridadType }[] = [
+  { label: '🟢 Baja', value: Prioridad.BAJA },
+  { label: '🟡 Media', value: Prioridad.MEDIA },
+  { label: '🔴 Alta', value: Prioridad.ALTA },
+];
 
 const AsignacionTecnicos = () => {
   const navigation = useNavigation();
@@ -22,6 +31,8 @@ const AsignacionTecnicos = () => {
     totalPages,
     showSuccess,
     setShowSuccess,
+    prioridad,
+    setPrioridad,
     cargarTecnicos,
     recargarPaginaActual,
     nextPage,
@@ -31,6 +42,7 @@ const AsignacionTecnicos = () => {
 
   const [confirmModalVisible, setConfirmModalVisible] = useState(false);
   const [selectedTecnico, setSelectedTecnico] = useState<{id: number, nombre: string} | null>(null);
+  const [prioridadDropdownVisible, setPrioridadDropdownVisible] = useState(false);
 
   const handleAsignarPress = (tecnicoId: number, tecnicoNombre: string) => {
     setSelectedTecnico({ id: tecnicoId, nombre: tecnicoNombre });
@@ -59,6 +71,51 @@ const AsignacionTecnicos = () => {
           >
             <Ionicons name="arrow-back-outline" size={24} color="white" />
           </TouchableOpacity>
+        </View>
+
+        {/* Selector de Prioridad */}
+        <View style={prioridadStyles.prioridadContainer}>
+          <Text style={prioridadStyles.prioridadLabel}>Selecciona Prioridad:</Text>
+          <TouchableOpacity
+            style={prioridadStyles.prioridadButton}
+            onPress={() => setPrioridadDropdownVisible(!prioridadDropdownVisible)}
+          >
+            <Text style={prioridadStyles.prioridadButtonText}>
+              {prioridadOptions.find(p => p.value === prioridad)?.label || 'Seleccionar'}
+            </Text>
+            <Ionicons 
+              name={prioridadDropdownVisible ? 'chevron-up' : 'chevron-down'} 
+              size={20} 
+              color="white" 
+            />
+          </TouchableOpacity>
+
+          {prioridadDropdownVisible && (
+            <View style={prioridadStyles.dropdownMenu}>
+              {prioridadOptions.map((opcion) => (
+                <TouchableOpacity
+                  key={opcion.value}
+                  style={[
+                    prioridadStyles.dropdownItem,
+                    prioridad === opcion.value && prioridadStyles.dropdownItemSelected,
+                  ]}
+                  onPress={() => {
+                    setPrioridad(opcion.value);
+                    setPrioridadDropdownVisible(false);
+                  }}
+                >
+                  <Text
+                    style={[
+                      prioridadStyles.dropdownItemText,
+                      prioridad === opcion.value && prioridadStyles.dropdownItemTextSelected,
+                    ]}
+                  >
+                    {opcion.label}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          )}
         </View>
 
         <View style={styles.card}>
@@ -141,5 +198,7 @@ const AsignacionTecnicos = () => {
     </LinearGradient>
   );
 };
+
+// prioridadStyles moved to ./styles.ts
 
 export default AsignacionTecnicos;

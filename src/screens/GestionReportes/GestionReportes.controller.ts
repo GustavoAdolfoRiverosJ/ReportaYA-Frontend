@@ -2,6 +2,7 @@
 import { useEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { useOperadorReportes } from '../../context/OperadorReportesContext';
+import { useTecnicos } from '../../context/TecnicosContext';
 
 export const useGestionReportesController = () => {
   const {
@@ -20,9 +21,22 @@ export const useGestionReportesController = () => {
     actualizarEstadoReporte,
   } = useOperadorReportes();
   const navigation = useNavigation();
+  const { cargarTecnicos } = useTecnicos();
 
-  const asignarTecnico = (reporteId: number) => {
-    (navigation as any).navigate('AsignacionTecnicos', { reporteId });
+  const asignarTecnico = async (reporteId: number) => {
+    console.log('NAV: prefetch técnicos y navegar a AsignacionTecnicos con reporteId=', reporteId);
+    try {
+      // Prefetch técnicos en background para mejorar UX
+      await cargarTecnicos(0);
+    } catch (err) {
+      console.warn('Prefetch técnicos falló, navegando de todas formas', err);
+    }
+    (navigation as any).navigate('AsignacionTecnicos', { reporteId }); // navegación definida en AppNavigator -> Stack.Screen name="AsignacionTecnicos"
+  };
+
+  const auditarReporte = (reporteId: number) => {
+    console.log('NAV: Navegando a AuditarReporte con reporteId=', reporteId);
+    (navigation as any).navigate('AuditarReporte', { reporteId });
   };
 
   useEffect(() => {
@@ -44,5 +58,6 @@ export const useGestionReportesController = () => {
     cambiarEstadoARevision,
     rechazarReporte,
     asignarTecnico,
+    auditarReporte,
   };
 };

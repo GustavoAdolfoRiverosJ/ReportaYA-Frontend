@@ -11,7 +11,7 @@ interface OperadorReportesContextType {
   totalPages: number;
   filtroEstado: EstadoReporteType | null;
   setFiltroEstado: (estado: EstadoReporteType | null) => void;
-  cargarReportes: (page?: number) => Promise<void>;
+  cargarReportes: (page?: number, estadoParam?: EstadoReporteType | null) => Promise<void>;
   nextPage: () => Promise<void>;
   prevPage: () => Promise<void>;
   cambiarEstadoARevision: (reporteId: number) => Promise<void>;
@@ -30,12 +30,12 @@ export const OperadorReportesProvider: React.FC<{ children: ReactNode }> = ({ ch
   const [totalPages, setTotalPages] = useState<number>(0);
   const [filtroEstado, setFiltroEstadoState] = useState<EstadoReporteType | null>(null);
 
-  const cargarReportes = useCallback(async (page: number = 0) => {
+  const cargarReportes = useCallback(async (page: number = 0, estadoParam?: EstadoReporteType | null) => {
     try {
       setLoading(true);
       setError(null);
-      // Si hay filtro, usarlo
-      const estado = filtroEstado || undefined;
+      // Usar el parámetro si se proporciona, sino usar el estado global
+      const estado = (estadoParam !== undefined ? estadoParam : filtroEstado) || undefined;
       const pageData: Page<ReporteResponse> = await ServicioReportes.obtenerTodosReportes(page, estado);
 
       setReportes(pageData.content);
@@ -52,18 +52,23 @@ export const OperadorReportesProvider: React.FC<{ children: ReactNode }> = ({ ch
 
   const setFiltroEstado = useCallback((estado: EstadoReporteType | null) => {
     setFiltroEstadoState(estado);
-    // Al cambiar filtro, recargar desde página 0
-    // Nota: cargarReportes depende de filtroEstado, pero aquí estamos actualizando el estado.
-    // Necesitamos un useEffect o llamar a cargarReportes después de que el estado se actualice.
-    // Sin embargo, como cargarReportes usa el valor del estado, y setState es async, mejor pasar el valor directamente o usar useEffect.
-    // Para simplificar, usaremos un useEffect en el componente o aquí.
-    // Mejor opción: useEffect que escuche cambios en filtroEstado.
+    // Cargar inmediatamente con el nuevo filtro
+    setLoading(true);
+    ServicioReportes.obtenerTodosReportes(0, estado || undefined)
+      .then((pageData) => {
+        setReportes(pageData.content);
+        setCurrentPage(0);
+        setTotalPages(pageData.totalPages);
+        console.log('Filtro cambiado a:', estado, 'Total reportes:', pageData.content.length);
+      })
+      .catch((err: any) => {
+        setError(err.message || 'Error al cargar los reportes');
+        console.error('Error al cambiar filtro:', err);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   }, []);
-
-  // Efecto para recargar cuando cambia el filtro
-  React.useEffect(() => {
-    cargarReportes(0);
-  }, [filtroEstado]);
 
   const nextPage = useCallback(async () => {
     if (currentPage < totalPages - 1 && !loading) {
