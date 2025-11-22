@@ -8,7 +8,7 @@ import { useAuth } from '../../context/AuthContext';
 export interface ReportFormData {
   tipo: '' | 'infraestructura' | 'residuos' | 'otros';
   descripcion: string;
-  ubicacion: { lat: number; lng: number } | null;
+  ubicacion: { lat: number; lng: number; direccion?: string } | null;
   imagen: string | null;
 }
 
@@ -63,7 +63,7 @@ export const useReportController = () => {
         ubicacion: {
           latitud: form.ubicacion.lat,
           longitud: form.ubicacion.lng,
-          direccion: undefined, // Opcional, se puede omitir
+          direccion: form.ubicacion.direccion, // Incluir dirección si existe
         },
         // prioridad: 'MEDIA', // Opcional - El backend asigna MEDIA por defecto
       };

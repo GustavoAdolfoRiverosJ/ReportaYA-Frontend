@@ -86,6 +86,12 @@ export const styles = StyleSheet.create({
     marginLeft: 8,
     flex: 1,
   },
+  coordinatesText: {
+    fontSize: 12,
+    color: '#666',
+    marginTop: 4,
+    fontStyle: 'italic',
+  },
   statusBadge: {
     borderRadius: 8,
     paddingVertical: 4,

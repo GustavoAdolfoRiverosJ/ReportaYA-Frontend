@@ -41,7 +41,7 @@ const ReportScreen = () => {
             buttonPositive: 'Aceptar',
           }
         );
-        
+
         if (granted === PermissionsAndroid.RESULTS.GRANTED) {
           console.log('Permiso de ubicación concedido');
           getCurrentLocation();
@@ -59,19 +59,39 @@ const ReportScreen = () => {
 
   const getCurrentLocation = () => {
     showToast('Obteniendo ubicación...', 'info');
-    
+
     Geolocation.getCurrentPosition(
-      (position) => {
+      async (position) => {
         const lat = position.coords.latitude;
         const lng = position.coords.longitude;
-        setForm(prev => ({ ...prev, ubicacion: { lat, lng } }));
-        showToast('Ubicación obtenida correctamente', 'success');
-        console.log('Ubicación obtenida:', { lat, lng });
+
+        // Obtener dirección legible usando geocoding
+        try {
+          const ServicioGeocoding = (await import('../../servicios/ServicioGeocoding')).default;
+          const direccion = await ServicioGeocoding.obtenerDireccion(lat, lng);
+
+          setForm(prev => ({
+            ...prev,
+            ubicacion: {
+              lat,
+              lng,
+              direccion: direccion.direccionCompleta
+            }
+          }));
+
+          showToast(`Ubicación: ${direccion.distrito}, ${direccion.departamento}`, 'success');
+          console.log('Ubicación y dirección obtenidas:', { lat, lng, direccion });
+        } catch (error) {
+          // Si falla el geocoding, solo guardar coordenadas
+          setForm(prev => ({ ...prev, ubicacion: { lat, lng } }));
+          showToast('Ubicación obtenida correctamente', 'success');
+          console.log('Ubicación obtenida (sin geocoding):', { lat, lng });
+        }
       },
       (error) => {
         console.error('Error al obtener ubicación:', error);
         let mensaje = 'No se pudo obtener tu ubicación.';
-        
+
         switch (error.code) {
           case 1: // PERMISSION_DENIED
             mensaje = 'Permiso de ubicación denegado.';
@@ -83,10 +103,10 @@ const ReportScreen = () => {
             mensaje = 'Tiempo de espera agotado.';
             break;
         }
-        
+
         showToast(mensaje, 'error');
       },
-      { 
+      {
         enableHighAccuracy: false,
         timeout: 30000,
         maximumAge: 10000
@@ -108,28 +128,28 @@ const ReportScreen = () => {
             buttonPositive: 'Aceptar',
           }
         );
-        
+
         if (cameraPermission !== PermissionsAndroid.RESULTS.GRANTED) {
           showToast('Permiso de cámara denegado', 'error');
           return;
         }
       }
 
-      const response = await launchCamera({ 
-        mediaType: 'photo', 
+      const response = await launchCamera({
+        mediaType: 'photo',
         quality: 0.8,
-        saveToPhotos: false 
+        saveToPhotos: false
       });
-      
+
       if (response.didCancel) {
         return;
       }
-      
+
       if (response.errorCode) {
         showToast(response.errorMessage || 'Error al tomar foto', 'error');
         return;
       }
-      
+
       if (response.assets && response.assets[0]?.uri) {
         setForm(prev => ({ ...prev, imagen: response.assets![0].uri || null }));
       }
@@ -148,12 +168,12 @@ const ReportScreen = () => {
     }
 
     setIsLoading(true);
-    
+
     // ✨ Pasar el callback para agregar el reporte a la memoria
     const reporteCreado = await enviarReporte(form, async (reporte) => {
       await agregarReporte(reporte, usuarioId);
     });
-    
+
     setIsLoading(false);
 
     if (reporteCreado) {
@@ -175,20 +195,20 @@ const ReportScreen = () => {
         <View style={styles.card}>
           <Text style={styles.label}>Tipo de Problema:</Text>
           <View style={styles.optionContainer}>
-            <TouchableOpacity 
-              style={[styles.option, form.tipo === 'infraestructura' && styles.selectedOption]} 
+            <TouchableOpacity
+              style={[styles.option, form.tipo === 'infraestructura' && styles.selectedOption]}
               onPress={() => setForm(prev => ({ ...prev, tipo: 'infraestructura' }))}
             >
               <Text style={styles.optionText}>Infraestructura urbana</Text>
             </TouchableOpacity>
-            <TouchableOpacity 
-              style={[styles.option, form.tipo === 'residuos' && styles.selectedOption]} 
+            <TouchableOpacity
+              style={[styles.option, form.tipo === 'residuos' && styles.selectedOption]}
               onPress={() => setForm(prev => ({ ...prev, tipo: 'residuos' }))}
             >
               <Text style={styles.optionText}>Acumulación de residuos</Text>
             </TouchableOpacity>
-            <TouchableOpacity 
-              style={[styles.option, form.tipo === 'otros' && styles.selectedOption]} 
+            <TouchableOpacity
+              style={[styles.option, form.tipo === 'otros' && styles.selectedOption]}
               onPress={() => setForm(prev => ({ ...prev, tipo: 'otros' }))}
             >
               <Text style={styles.optionText}>Otro</Text>
@@ -208,12 +228,12 @@ const ReportScreen = () => {
           </View>
 
           <Text style={styles.label}>Descripción detallada:</Text>
-          <TextInput 
-            style={styles.input} 
-            value={form.descripcion} 
-            onChangeText={(text) => setForm(prev => ({ ...prev, descripcion: text }))} 
-            multiline 
-            placeholder="Describa el problema encontrado..." 
+          <TextInput
+            style={styles.input}
+            value={form.descripcion}
+            onChangeText={(text) => setForm(prev => ({ ...prev, descripcion: text }))}
+            multiline
+            placeholder="Describa el problema encontrado..."
             placeholderTextColor="#999"
           />
 
@@ -229,8 +249,8 @@ const ReportScreen = () => {
             </TouchableOpacity>
           )}
 
-          <TouchableOpacity 
-            style={[styles.submitButton, isLoading && { opacity: 0.6 }]} 
+          <TouchableOpacity
+            style={[styles.submitButton, isLoading && { opacity: 0.6 }]}
             onPress={handleSubmit}
             disabled={isLoading}
           >
