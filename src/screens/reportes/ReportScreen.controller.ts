@@ -47,11 +47,19 @@ export const useReportController = () => {
         otros: 'Otro problema',
       };
 
+      // Mapear el tipo local al enum del backend
+      const tipoProblemaMap = {
+        infraestructura: 'INFRAESTRUCTURA',
+        residuos: 'RESIDUOS',
+        otros: 'OTROS',
+      } as const;
+
       // Construir el objeto de reporte según la API
       const reporteData: CrearReporteRequest = {
         titulo: tituloMap[form.tipo] || 'Reporte sin especificar',
         descripcion: form.descripcion,
         cuentaId: usuario.id, // Usar ID del usuario autenticado
+        tipoProblema: tipoProblemaMap[form.tipo] as any, // Enviar el tipo de problema
         ubicacion: {
           latitud: form.ubicacion.lat,
           longitud: form.ubicacion.lng,

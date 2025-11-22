@@ -62,8 +62,8 @@ const ReportDetailModal: React.FC<ReportDetailModalProps> = ({ visible, reporte,
     }
   };
 
-  const ubicacionTexto = reporte.ubicacion?.direccion 
-    || (reporte.ubicacion?.latitud && reporte.ubicacion?.longitud 
+  const ubicacionTexto = reporte.ubicacion?.direccion
+    || (reporte.ubicacion?.latitud && reporte.ubicacion?.longitud
       ? `${reporte.ubicacion.latitud.toFixed(6)}, ${reporte.ubicacion.longitud.toFixed(6)}`
       : 'Sin ubicación');
 
@@ -105,6 +105,13 @@ const ReportDetailModal: React.FC<ReportDetailModalProps> = ({ visible, reporte,
                   <Text style={styles.priorityBadgeText}>{getPrioridadTexto(reporte.prioridad)}</Text>
                 </View>
               </View>
+
+              {reporte.tipoProblema && (
+                <View style={styles.detailRow}>
+                  <Text style={styles.detailLabel}>Tipo:</Text>
+                  <Text style={styles.detailValue}>{reporte.tipoProblema}</Text>
+                </View>
+              )}
             </View>
 
             <View style={styles.section}>
@@ -128,7 +135,7 @@ const ReportDetailModal: React.FC<ReportDetailModalProps> = ({ visible, reporte,
               </View>
             </View>
 
-            <TouchableOpacity 
+            <TouchableOpacity
               style={{
                 backgroundColor: '#a27eff',
                 padding: 12,
