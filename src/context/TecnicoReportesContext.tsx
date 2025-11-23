@@ -1,9 +1,10 @@
-// src/context/OperadorReportesContext.tsx
+// src/context/TecnicoReportesContext.tsx
 import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
-import ServicioReportes from '../servicios/ServicioReportes';
+import ServicioTecnicos from '../servicios/ServicioTecnicos';
 import { ReporteResponse, Page, EstadoReporteType } from '../types';
+import { useAuth } from './AuthContext';
 
-interface OperadorReportesContextType {
+interface TecnicoReportesContextType {
   reportes: ReporteResponse[];
   loading: boolean;
   error: string | null;
@@ -14,15 +15,13 @@ interface OperadorReportesContextType {
   cargarReportes: (page?: number, estadoParam?: EstadoReporteType | null) => Promise<void>;
   nextPage: () => Promise<void>;
   prevPage: () => Promise<void>;
-  cambiarEstadoARevision: (reporteId: number) => Promise<void>;
-  rechazarReporte: (reporteId: number, motivo: string) => Promise<void>;
-  actualizarEstadoReporte: (reporteId: number, nuevoEstado: string) => void;
   limpiarReportes: () => void;
 }
 
-const OperadorReportesContext = createContext<OperadorReportesContextType | undefined>(undefined);
+const TecnicoReportesContext = createContext<TecnicoReportesContextType | undefined>(undefined);
 
-export const OperadorReportesProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+export const TecnicoReportesProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const { usuario } = useAuth();
   const [reportes, setReportes] = useState<ReporteResponse[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
@@ -34,32 +33,43 @@ export const OperadorReportesProvider: React.FC<{ children: ReactNode }> = ({ ch
     try {
       setLoading(true);
       setError(null);
+
+      if (!usuario || !usuario.id) {
+        throw new Error('Usuario no autenticado');
+      }
+
       // Usar el parámetro si se proporciona, sino usar el estado global
       const estado = (estadoParam !== undefined ? estadoParam : filtroEstado) || undefined;
-      const pageData: Page<ReporteResponse> = await ServicioReportes.obtenerTodosReportes(page, estado);
+      const pageData: Page<ReporteResponse> = await ServicioTecnicos.obtenerReportesAsignados(
+        usuario.id,
+        estado,
+        page
+      );
 
       setReportes(pageData.content);
       setCurrentPage(page);
       setTotalPages(pageData.totalPages);
-      console.log('Operador totalPages:', pageData.totalPages, 'currentPage:', pageData.number, 'content length:', pageData.content.length, 'filtro:', estado);
+      console.log('Técnico - Reportes cargados:', pageData.totalPages, 'páginas, página actual:', pageData.number, 'reportes en esta página:', pageData.content.length, 'filtro:', estado);
     } catch (err: any) {
-      setError(err.message || 'Error al cargar los reportes');
-      console.error('Error en OperadorReportesContext:', err);
+      setError(err.message || 'Error al cargar los reportes asignados');
+      console.error('Error en TecnicoReportesContext:', err);
     } finally {
       setLoading(false);
     }
-  }, [filtroEstado]);
+  }, [usuario, filtroEstado]);
 
   const setFiltroEstado = useCallback((estado: EstadoReporteType | null) => {
     setFiltroEstadoState(estado);
     // Cargar inmediatamente con el nuevo filtro
+    if (!usuario || !usuario.id) return;
+
     setLoading(true);
-    ServicioReportes.obtenerTodosReportes(0, estado || undefined)
+    ServicioTecnicos.obtenerReportesAsignados(usuario.id, estado || undefined, 0)
       .then((pageData) => {
         setReportes(pageData.content);
         setCurrentPage(0);
         setTotalPages(pageData.totalPages);
-        console.log('Filtro cambiado a:', estado, 'Total reportes:', pageData.content.length);
+        console.log('Técnico - Filtro cambiado a:', estado, 'Total reportes:', pageData.content.length);
       })
       .catch((err: any) => {
         setError(err.message || 'Error al cargar los reportes');
@@ -68,7 +78,7 @@ export const OperadorReportesProvider: React.FC<{ children: ReactNode }> = ({ ch
       .finally(() => {
         setLoading(false);
       });
-  }, []);
+  }, [usuario]);
 
   const nextPage = useCallback(async () => {
     if (currentPage < totalPages - 1 && !loading) {
@@ -82,40 +92,6 @@ export const OperadorReportesProvider: React.FC<{ children: ReactNode }> = ({ ch
     }
   }, [currentPage, loading, cargarReportes]);
 
-  const cambiarEstadoARevision = useCallback(async (reporteId: number) => {
-    try {
-      setLoading(true);
-      await ServicioReportes.cambiarEstadoReporte(reporteId, 'REVISION');
-      await cargarReportes(currentPage);
-    } catch (err: any) {
-      setError(err.message || 'Error al cambiar estado del reporte');
-    } finally {
-      setLoading(false);
-    }
-  }, [currentPage, cargarReportes]);
-
-  const rechazarReporte = useCallback(async (reporteId: number, motivo: string) => {
-    try {
-      setLoading(true);
-      await ServicioReportes.rechazarReporte(reporteId, motivo);
-      await cargarReportes(currentPage);
-    } catch (err: any) {
-      setError(err.message || 'Error al rechazar reporte');
-    } finally {
-      setLoading(false);
-    }
-  }, [currentPage, cargarReportes]);
-
-  const actualizarEstadoReporte = useCallback((reporteId: number, nuevoEstado: string) => {
-    setReportes(prev =>
-      prev.map(reporte =>
-        reporte.id === reporteId
-          ? { ...reporte, estado: nuevoEstado as any }
-          : reporte
-      )
-    );
-  }, []);
-
   const limpiarReportes = useCallback(() => {
     setReportes([]);
     setCurrentPage(0);
@@ -125,7 +101,7 @@ export const OperadorReportesProvider: React.FC<{ children: ReactNode }> = ({ ch
   }, []);
 
   return (
-    <OperadorReportesContext.Provider
+    <TecnicoReportesContext.Provider
       value={{
         reportes,
         loading,
@@ -137,21 +113,18 @@ export const OperadorReportesProvider: React.FC<{ children: ReactNode }> = ({ ch
         cargarReportes,
         nextPage,
         prevPage,
-        cambiarEstadoARevision,
-        rechazarReporte,
-        actualizarEstadoReporte,
-        limpiarReportes
+        limpiarReportes,
       }}
     >
       {children}
-    </OperadorReportesContext.Provider>
+    </TecnicoReportesContext.Provider>
   );
 };
 
-export const useOperadorReportes = () => {
-  const context = useContext(OperadorReportesContext);
+export const useTecnicoReportes = () => {
+  const context = useContext(TecnicoReportesContext);
   if (!context) {
-    throw new Error('useOperadorReportes debe usarse dentro de un OperadorReportesProvider');
+    throw new Error('useTecnicoReportes debe usarse dentro de un TecnicoReportesProvider');
   }
   return context;
 };

@@ -9,6 +9,7 @@ export const styles = StyleSheet.create({
     marginBottom: 15,
     flexDirection: 'row',
     borderLeftWidth: 5,
+    alignItems: 'center',
   },
   reportContent: {
     flex: 1,
@@ -52,5 +53,20 @@ export const styles = StyleSheet.create({
   },
   statusRechazado: {
     backgroundColor: '#9e9e9e',
+  },
+  buttonAtender: {
+    backgroundColor: '#4CAF50',
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    borderRadius: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginLeft: 10,
+  },
+  buttonAtenderText: {
+    color: 'white',
+    fontWeight: 'bold',
+    marginLeft: 5,
+    fontSize: 14,
   },
 });

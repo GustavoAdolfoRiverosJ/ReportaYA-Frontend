@@ -6,7 +6,8 @@ import ServicioReportes from '../../servicios/ServicioReportes';
 import { useAuth } from '../../context/AuthContext';
 import { useTecnicos } from '../../context/TecnicosContext';
 import { useOperadorReportes } from '../../context/OperadorReportesContext';
-import { EstadoReporte } from '../../types/enums';
+import { EstadoReporte, Prioridad } from '../../types/enums';
+import { PrioridadType } from '../../types';
 
 export const useAsignacionTecnicosController = () => {
   const {
@@ -22,6 +23,7 @@ export const useAsignacionTecnicosController = () => {
   const { actualizarEstadoReporte } = useOperadorReportes();
   const [tecnicoAsignandoId, setTecnicoAsignandoId] = useState<number | null>(null);
   const [asignacionError, setAsignacionError] = useState<string | null>(null);
+  const [prioridad, setPrioridad] = useState<PrioridadType>(Prioridad.MEDIA);
 
   const route = useRoute();
   const navigation = useNavigation();
@@ -30,6 +32,9 @@ export const useAsignacionTecnicosController = () => {
   const { reporteId } = route.params as { reporteId: number };
 
   const [showSuccess, setShowSuccess] = useState(false);
+
+  // Log para depuración: confirmar que la pantalla recibió el reporteId
+  console.log('AsignacionTecnicos - mounted, reporteId=', reporteId);
 
   const asignarTecnico = async (tecnicoId: number) => {
     if (!usuario?.id || !reporteId) {
@@ -41,11 +46,13 @@ export const useAsignacionTecnicosController = () => {
       setTecnicoAsignandoId(tecnicoId);
       setAsignacionError(null);
 
-      await ServicioAsignaciones.crearAsignacion({
+      console.log('🔗 Asignando: reporteId=', reporteId, 'operadorId=', usuario.id, 'tecnicoId=', tecnicoId, 'prioridad=', prioridad);
+      await ServicioAsignaciones.crearAsignacion(
         reporteId,
-        operadorId: usuario.id,
+        usuario.id,
         tecnicoId,
-      });
+        prioridad
+      );
 
       // El backend cambia automáticamente el estado a PROCESO al asignar
       // Solo actualizamos el estado localmente para reflejar el cambio
@@ -79,6 +86,8 @@ export const useAsignacionTecnicosController = () => {
     totalPages,
     showSuccess,
     setShowSuccess,
+    prioridad,
+    setPrioridad,
     cargarTecnicos: () => cargarTecnicos(0),
     recargarPaginaActual: () => cargarTecnicos(currentPage), // Para recargar la página actual
     nextPage,

@@ -13,6 +13,7 @@ interface ReportCardOperadorProps {
   ubicacion: string;
   onCambiarEstado: () => void;
   onAsignarTecnico: () => void;
+  onAuditar?: () => void;
   onRechazar?: () => void;
 }
 
@@ -24,6 +25,7 @@ const ReportCardOperador: React.FC<ReportCardOperadorProps> = ({
   ubicacion,
   onCambiarEstado,
   onAsignarTecnico,
+  onAuditar,
   onRechazar,
 }) => {
   const getStatusStyle = (estado: string) => {
@@ -118,6 +120,21 @@ const ReportCardOperador: React.FC<ReportCardOperadorProps> = ({
               </TouchableOpacity>
             )}
           </>
+        )}
+
+        {estado === 'RESUELTA' && onAuditar && (
+          <TouchableOpacity
+            style={[
+              styles.actionButton, 
+              { 
+                backgroundColor: '#FF9800',
+              }
+            ]}
+            onPress={onAuditar}
+          >
+            <Ionicons name="checkmark-done-circle-outline" size={16} color="white" />
+            <Text style={styles.actionButtonText}>Auditar</Text>
+          </TouchableOpacity>
         )}
       </View>
     </View>

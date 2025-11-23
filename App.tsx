@@ -6,6 +6,7 @@ import { ReportesProvider } from './src/context/ReportesContext';
 import { AuthProvider } from './src/context/AuthContext';
 import { OperadorReportesProvider } from './src/context/OperadorReportesContext';
 import { TecnicosProvider } from './src/context/TecnicosContext';
+import { TecnicoReportesProvider } from './src/context/TecnicoReportesContext';
 import { HistorialProvider } from './src/context/HistorialContext';
 import CustomToast from './src/components/CustomToast';
 
@@ -33,15 +34,17 @@ const App = () => {
       <ReportesProvider>
         <OperadorReportesProvider>
           <TecnicosProvider>
-            <HistorialProvider>
-              <AppNavigator />
-              <CustomToast
-                visible={toast.visible}
-                message={toast.message}
-                type={toast.type}
-                onClose={() => setToast(prev => ({ ...prev, visible: false }))}
-              />
-            </HistorialProvider>
+            <TecnicoReportesProvider>
+              <HistorialProvider>
+                <AppNavigator />
+                <CustomToast
+                  visible={toast.visible}
+                  message={toast.message}
+                  type={toast.type}
+                  onClose={() => setToast(prev => ({ ...prev, visible: false }))}
+                />
+              </HistorialProvider>
+            </TecnicoReportesProvider>
           </TecnicosProvider>
         </OperadorReportesProvider>
       </ReportesProvider>

@@ -1,11 +1,12 @@
 // src/components/ReportDetailModal.tsx
-import React from 'react';
+import React, { useState } from 'react';
 import { Modal, View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import LocationThumbnail from './LocationThumbnail';
 import { useNavigation } from '@react-navigation/native';
 import { styles } from './ReportDetailModal.styles';
 import { ReporteResponse } from '../types';
+import SelectorTecnico from './SelectorTecnico';
 
 interface ReportDetailModalProps {
   visible: boolean;
@@ -15,12 +16,24 @@ interface ReportDetailModalProps {
 
 const ReportDetailModal: React.FC<ReportDetailModalProps> = ({ visible, reporte, onClose }) => {
   const navigation = useNavigation();
+  const [mostrarTecnicos, setMostrarTecnicos] = useState(false);
+  const [tecnicoSeleccionado, setTecnicoSeleccionado] = useState<string>('');
 
   if (!reporte) return null;
 
   const handleVerHistorial = () => {
     onClose();
     (navigation as any).navigate('Historial', { reporteId: reporte.id });
+  };
+
+  const handleVerTecnicosDisponibles = () => {
+    setMostrarTecnicos(true);
+  };
+
+  const handleTecnicoSeleccionado = (tecnicoId: string) => {
+    setTecnicoSeleccionado(tecnicoId);
+    // Aquí puedes agregar lógica para reasignar el técnico si es necesario
+    console.log('Técnico seleccionado:', tecnicoId);
   };
 
   const getStatusStyle = (estado: string) => {
@@ -156,6 +169,24 @@ const ReportDetailModal: React.FC<ReportDetailModalProps> = ({ visible, reporte,
               <Ionicons name="time-outline" size={20} color="white" style={{ marginRight: 8 }} />
               <Text style={{ color: 'white', fontWeight: 'bold' }}>Ver Historial de Cambios</Text>
             </TouchableOpacity>
+
+            {reporte.estado === 'PROCESO' && (
+              <TouchableOpacity 
+                style={{
+                  backgroundColor: '#4caf50',
+                  padding: 12,
+                  borderRadius: 8,
+                  flexDirection: 'row',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  marginBottom: 10
+                }}
+                onPress={handleVerTecnicosDisponibles}
+              >
+                <Ionicons name="person" size={20} color="white" style={{ marginRight: 8 }} />
+                <Text style={{ color: 'white', fontWeight: 'bold' }}>Ver Técnicos Disponibles</Text>
+              </TouchableOpacity>
+            )}
           </ScrollView>
 
           <TouchableOpacity style={styles.closeButtonBottom} onPress={onClose}>
@@ -163,6 +194,42 @@ const ReportDetailModal: React.FC<ReportDetailModalProps> = ({ visible, reporte,
           </TouchableOpacity>
         </View>
       </View>
+
+      {/* Modal de Técnicos Disponibles */}
+      <Modal
+        visible={mostrarTecnicos}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setMostrarTecnicos(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={[styles.modalContainer, { height: '80%' }]}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Técnicos Disponibles</Text>
+              <TouchableOpacity 
+                onPress={() => setMostrarTecnicos(false)} 
+                style={styles.closeButton}
+              >
+                <Ionicons name="close" size={28} color="#333" />
+              </TouchableOpacity>
+            </View>
+
+            <ScrollView style={styles.modalContent}>
+              <SelectorTecnico
+                tecnicoSeleccionado={tecnicoSeleccionado}
+                onTecnicoSeleccionado={handleTecnicoSeleccionado}
+              />
+            </ScrollView>
+
+            <TouchableOpacity 
+              style={styles.closeButtonBottom}
+              onPress={() => setMostrarTecnicos(false)}
+            >
+              <Text style={styles.closeButtonText}>Cerrar</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </Modal>
   );
 };

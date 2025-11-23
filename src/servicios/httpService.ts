@@ -1,6 +1,20 @@
 // src/servicios/httpService.ts
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 
+// --- Configuración de la API ---
+
+// Opción 1: Para conectar desde un EMULADOR de Android.
+// El emulador usa la IP 10.0.2.2 para referirse al 'localhost' de la máquina anfitriona (tu PC).
+const API_BASE_URL = 'http://10.0.2.2:8080';
+
+// Opción 2: Para conectar desde un DISPOSITIVO FÍSICO.
+// El dispositivo debe estar en la misma red WiFi que tu PC.
+// Reemplaza '192.168.100.135' con la IP de tu PC (la puedes ver con 'ipconfig' o 'ifconfig').
+// const API_BASE_URL = 'http://192.168.100.135:8080';
+
+// Opción 3: API en producción.
+// const API_BASE_URL = 'https://reporte-a.agreeableisland-1cef4d7f.eastus2.azurecontainerapps.io/api';
+
 // Configuración base de la API
 // NOTA: Dispositivo físico conectado a la misma red WiFi que la PC
 //const API_BASE_URL = 'https://reporte-a.agreeableisland-1cef4d7f.eastus2.azurecontainerapps.io/api'; // IP de tu PC

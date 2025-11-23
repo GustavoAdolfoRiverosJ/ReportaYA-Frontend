@@ -49,11 +49,13 @@ class ServicioReportes {
    */
   async obtenerTodosReportes(page: number = 0, estado?: string): Promise<Page<ReporteResponse>> {
     try {
-      let url = `${this.ENDPOINT}?page=${page}&size=10`;
+      let url = `${this.ENDPOINT}?page=${page}`;
       if (estado) {
         url += `&estado=${estado}`;
       }
+      console.log('🔍 Llamando a:', url);
       const response = await httpService.get<Page<ReporteResponse>>(url);
+      console.log('✅ Respuesta recibida:', response.content.length, 'reportes, página', response.number + 1, 'de', response.totalPages);
       return response;
     } catch (error: any) {
       console.error('Error al obtener todos los reportes:', error.response?.data || error.message);
@@ -123,7 +125,7 @@ class ServicioReportes {
    */
   async obtenerReportesPorCuenta(cuentaId: number, page: number = 0): Promise<Page<ReporteResponse>> {
     try {
-      const response = await httpService.get<Page<ReporteResponse>>(`${this.ENDPOINT}/cuenta/${cuentaId}?page=${page}&size=10`);
+      const response = await httpService.get<Page<ReporteResponse>>(`${this.ENDPOINT}/cuenta/${cuentaId}?page=${page}`);
       return response;
     } catch (error: any) {
       console.error('Error al obtener reportes por cuenta:', error.response?.data || error.message);
