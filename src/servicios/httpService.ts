@@ -15,6 +15,10 @@ const API_BASE_URL = 'http://10.0.2.2:8080';
 // Opción 3: API en producción.
 // const API_BASE_URL = 'https://reporte-a.agreeableisland-1cef4d7f.eastus2.azurecontainerapps.io/api';
 
+// Configuración base de la API
+// NOTA: Dispositivo físico conectado a la misma red WiFi que la PC
+//const API_BASE_URL = 'https://reporte-a.agreeableisland-1cef4d7f.eastus2.azurecontainerapps.io/api'; // IP de tu PC
+const API_BASE_URL = 'http://192.168.18.26:8080'; // Para emulador Android (descomentar si usas emulador)
 
 class HttpService {
   private axiosInstance: AxiosInstance;

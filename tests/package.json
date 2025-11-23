@@ -1,0 +1,32 @@
+{
+    "name": "reporta-ya-tests",
+    "version": "1.0.0",
+    "description": "Suite de pruebas para ReportaYA - HU1 y HU2",
+    "scripts": {
+        "test": "jest",
+        "test:watch": "jest --watch",
+        "test:coverage": "jest --coverage",
+        "test:hu1": "jest tests/HU1-MapaReportes",
+        "test:hu2": "jest tests/HU2-LocationPicker"
+    },
+    "jest": {
+        "preset": "react-native",
+        "testMatch": [
+            "**/tests/**/*.test.ts",
+            "**/tests/**/*.test.tsx"
+        ],
+        "collectCoverageFrom": [
+            "src/**/*.{ts,tsx}",
+            "!src/**/*.d.ts",
+            "!src/**/*.styles.ts"
+        ],
+        "coverageThreshold": {
+            "global": {
+                "branches": 80,
+                "functions": 80,
+                "lines": 80,
+                "statements": 80
+            }
+        }
+    }
+}

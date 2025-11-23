@@ -28,9 +28,14 @@ export enum TipoFoto {
   INICIAL = 'INICIAL',   // Foto inicial del problema
   PROCESO = 'PROCESO',   // Foto durante la solución
   FINAL = 'FINAL'        // Foto del resultado final
+export enum TipoProblema {
+  INFRAESTRUCTURA = 'INFRAESTRUCTURA',
+  RESIDUOS = 'RESIDUOS',
+  OTROS = 'OTROS'
 }
 
 // Type aliases para uso flexible
 export type EstadoReporteType = 'PENDIENTE' | 'REVISION' | 'PROCESO' | 'RESUELTA' | 'CERRADA' | 'RECHAZADO' | 'RECHAZADO_AUDITO';
 export type PrioridadType = 'BAJA' | 'MEDIA' | 'ALTA';
 export type TipoFotoType = 'INICIAL' | 'PROCESO' | 'FINAL';
+export type TipoProblemaType = 'INFRAESTRUCTURA' | 'RESIDUOS' | 'OTROS';

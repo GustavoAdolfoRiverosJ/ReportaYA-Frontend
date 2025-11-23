@@ -1,7 +1,7 @@
 // src/screens/reportes/ReportScreen.tsx
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, PermissionsAndroid, Platform, Image, ScrollView, StatusBar } from 'react-native';
-import Geolocation from 'react-native-geolocation-service';
+import Geolocation from '@react-native-community/geolocation';
 import { launchCamera } from 'react-native-image-picker';
 import { useNavigation } from '@react-navigation/native';
 import LinearGradient from 'react-native-linear-gradient';
@@ -10,11 +10,9 @@ import { styles } from '../../styles/ReportScreen.styles';
 import { useReportController, ReportFormData } from './ReportScreen.controller';
 import { useReportes } from '../../context/ReportesContext';
 import CustomToast from '../../components/CustomToast';
-import LocationPickerModal from '../../components/LocationPickerModal';
 
 const ReportScreen = () => {
   const [form, setForm] = useState<ReportFormData>({ tipo: '', descripcion: '', ubicacion: null, imagen: null });
-  const [showLocationPicker, setShowLocationPicker] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [toast, setToast] = useState<{ visible: boolean; message: string; type: 'success' | 'error' | 'info' }>({
     visible: false,
@@ -63,64 +61,57 @@ const ReportScreen = () => {
     showToast('Obteniendo ubicación...', 'info');
 
     Geolocation.getCurrentPosition(
-      (position) => {
-        const currentLocation = {
-          lat: position.coords.latitude,
-          lng: position.coords.longitude,
-        };
+      async (position) => {
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
 
-        if (!form.ubicacion) {
-          setForm(prev => ({ ...prev, ubicacion: currentLocation }));
+        // Obtener dirección legible usando geocoding
+        try {
+          const ServicioGeocoding = (await import('../../servicios/ServicioGeocoding')).default;
+          const direccion = await ServicioGeocoding.obtenerDireccion(lat, lng);
+
+          setForm(prev => ({
+            ...prev,
+            ubicacion: {
+              lat,
+              lng,
+              direccion: direccion.direccionCompleta
+            }
+          }));
+
+          showToast(`Ubicación: ${direccion.distrito}, ${direccion.departamento}`, 'success');
+          console.log('Ubicación y dirección obtenidas:', { lat, lng, direccion });
+        } catch (error) {
+          // Si falla el geocoding, solo guardar coordenadas
+          setForm(prev => ({ ...prev, ubicacion: { lat, lng } }));
+          showToast('Ubicación obtenida correctamente', 'success');
+          console.log('Ubicación obtenida (sin geocoding):', { lat, lng });
         }
-
-        setShowLocationPicker(true);
       },
       (error) => {
-        console.error('Error:', error);
-        const defaultLocation = { lat: -12.046374, lng: -77.042793 };
-        if (!form.ubicacion) {
-          setForm(prev => ({ ...prev, ubicacion: defaultLocation }));
+        console.error('Error al obtener ubicación:', error);
+        let mensaje = 'No se pudo obtener tu ubicación.';
+
+        switch (error.code) {
+          case 1: // PERMISSION_DENIED
+            mensaje = 'Permiso de ubicación denegado.';
+            break;
+          case 2: // POSITION_UNAVAILABLE
+            mensaje = 'Ubicación no disponible. Verifica GPS.';
+            break;
+          case 3: // TIMEOUT
+            mensaje = 'Tiempo de espera agotado.';
+            break;
         }
-        setShowLocationPicker(true);
-        showToast('Usando ubicación por defecto. Ajusta el marcador.', 'info');
+
+        showToast(mensaje, 'error');
       },
-      { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
+      {
+        enableHighAccuracy: false,
+        timeout: 30000,
+        maximumAge: 10000
+      }
     );
-  };
-
-  const handleLocationConfirm = async (location: { lat: number; lng: number }) => {
-    setShowLocationPicker(false);
-    showToast('Obteniendo dirección...', 'info');
-
-    try {
-      const ServicioGeocoding = (await import('../../servicios/ServicioGeocoding')).default;
-      const direccion = await ServicioGeocoding.obtenerDireccion(location.lat, location.lng);
-
-      setForm(prev => ({
-        ...prev,
-        ubicacion: {
-          lat: location.lat,
-          lng: location.lng,
-          // Campos separados para mejor consulta en backend
-          calle: direccion.calle,
-          distrito: direccion.distrito,
-          ciudad: direccion.ciudad,
-          departamento: direccion.departamento,
-          pais: direccion.pais,
-          // Dirección completa para mostrar en UI
-          direccion: direccion.direccionCompleta
-        }
-      }));
-
-      showToast(`Ubicación: ${direccion.distrito}, ${direccion.departamento}`, 'success');
-    } catch (error) {
-      setForm(prev => ({ ...prev, ubicacion: location }));
-      showToast('Ubicación seleccionada correctamente', 'success');
-    }
-  };
-
-  const handleLocationCancel = () => {
-    setShowLocationPicker(false);
   };
 
   const takePhoto = async () => {
@@ -225,37 +216,16 @@ const ReportScreen = () => {
           </View>
 
           <Text style={styles.label}>Ubicación en el Mapa:</Text>
-          {!form.ubicacion ? (
-            <View style={styles.locationContainer}>
-              <TouchableOpacity style={styles.locationButton} onPress={requestLocationPermission}>
-                <Text style={styles.locationButtonText}>Obtener Ubicación</Text>
-              </TouchableOpacity>
-            </View>
-          ) : (
-            <TouchableOpacity
-              style={styles.mapThumbnailContainer}
-              onPress={requestLocationPermission}
-              activeOpacity={0.7}
-            >
-              <View style={styles.mapThumbnail}>
-                <View style={styles.mapPlaceholder}>
-                  <Text style={styles.mapIcon}>🗺️</Text>
-                  <View style={styles.markerOverlay}>
-                    <Text style={styles.markerIcon}>📍</Text>
-                  </View>
-                </View>
-                <View style={styles.locationInfo}>
-                  <Text style={styles.locationLabel}>
-                    {form.ubicacion.direccion || 'Ubicación seleccionada'}
-                  </Text>
-                  <Text style={styles.coordinatesSmall}>
-                    {form.ubicacion.lat.toFixed(5)}, {form.ubicacion.lng.toFixed(5)}
-                  </Text>
-                </View>
-              </View>
-              <Text style={styles.editLocationText}>Toca para cambiar ubicación</Text>
+          <View style={styles.locationContainer}>
+            <TouchableOpacity style={styles.locationButton} onPress={requestLocationPermission}>
+              <Text style={styles.locationButtonText}>Obtener Ubicación</Text>
             </TouchableOpacity>
-          )}
+            {form.ubicacion && (
+              <Text style={styles.locationText}>
+                Lat: {form.ubicacion.lat.toFixed(5)}, Lng: {form.ubicacion.lng.toFixed(5)}
+              </Text>
+            )}
+          </View>
 
           <Text style={styles.label}>Descripción detallada:</Text>
           <TextInput
@@ -296,13 +266,6 @@ const ReportScreen = () => {
         message={toast.message}
         type={toast.type}
         onClose={() => setToast(prev => ({ ...prev, visible: false }))}
-      />
-
-      <LocationPickerModal
-        visible={showLocationPicker}
-        initialLocation={form.ubicacion || { lat: -12.046374, lng: -77.042793 }}
-        onConfirm={handleLocationConfirm}
-        onCancel={handleLocationCancel}
       />
     </LinearGradient>
   );

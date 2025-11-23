@@ -64,6 +64,29 @@ class ServicioReportes {
   }
 
   /**
+   * Obtener reportes para el mapa con filtros
+   * @param estado - (Opcional) Filtrar por estado
+   * @param tipo - (Opcional) Filtrar por tipo de problema
+   * @param prioridad - (Opcional) Filtrar por prioridad
+   * @returns Promise con lista de reportes
+   */
+  async obtenerReportesMapa(estado?: string, tipo?: string, prioridad?: string): Promise<ReporteResponse[]> {
+    try {
+      let url = `${this.ENDPOINT}/mapa?`;
+      const params = new URLSearchParams();
+      if (estado) params.append('estado', estado);
+      if (tipo) params.append('tipo', tipo);
+      if (prioridad) params.append('prioridad', prioridad);
+
+      const response = await httpService.get<ReporteResponse[]>(`${url}${params.toString()}`);
+      return response;
+    } catch (error: any) {
+      console.error('Error al obtener reportes del mapa:', error.response?.data || error.message);
+      throw new Error(error.response?.data?.message || 'Error al obtener reportes del mapa');
+    }
+  }
+
+  /**
    * Rechazar un reporte
    * @param id - ID del reporte
    * @param motivo - Motivo del rechazo

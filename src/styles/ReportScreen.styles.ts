@@ -6,7 +6,7 @@ export const styles = StyleSheet.create({
     flex: 1,
   },
   container: {
-    flexGrow: 1, // Changed to flexGrow to allow scrolling
+    flexGrow: 1,
     padding: 20,
   },
   header: {
@@ -121,7 +121,6 @@ export const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 18,
   },
-  // Modal Styles
   modalBackground: {
     flex: 1,
     justifyContent: 'center',
@@ -140,5 +139,60 @@ export const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 10,
     textAlign: 'center',
+  },
+  mapThumbnailContainer: {
+    borderWidth: 2,
+    borderColor: '#a27eff',
+    borderRadius: 12,
+    padding: 12,
+    marginBottom: 20,
+    backgroundColor: '#f9f7ff',
+  },
+  mapThumbnail: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  mapPlaceholder: {
+    width: 80,
+    height: 80,
+    backgroundColor: '#e8e0ff',
+    borderRadius: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+    position: 'relative',
+  },
+  mapIcon: {
+    fontSize: 40,
+  },
+  markerOverlay: {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: [{ translateX: -10 }, { translateY: -15 }],
+  },
+  markerIcon: {
+    fontSize: 24,
+  },
+  locationInfo: {
+    flex: 1,
+  },
+  locationLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#333',
+    marginBottom: 4,
+  },
+  coordinatesSmall: {
+    fontSize: 11,
+    color: '#666',
+    fontFamily: 'monospace',
+  },
+  editLocationText: {
+    fontSize: 12,
+    color: '#a27eff',
+    textAlign: 'center',
+    fontWeight: '600',
   },
 });

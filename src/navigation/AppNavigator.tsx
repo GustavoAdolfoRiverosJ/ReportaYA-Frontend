@@ -11,6 +11,7 @@ import LoginScreen from '../screens/Auth/LoginScreen';
 import RegisterScreen from '../screens/Auth/RegisterScreen';
 import HomeScreen from '../screens/Home/HomeScreen';
 import ReportScreen from '../screens/reportes/ReportScreen';
+import MapScreen from '../screens/Map/MapScreen';
 import HomeScreenOperador from '../screens/HomeScreenOperador/HomeScreenOperador';
 import HomeScreenTecnico from '../screens/HomeScreenTecnico/HomeScreenTecnico';
 import GestionReportes from '../screens/GestionReportes/GestionReportes';
@@ -34,6 +35,7 @@ export type RootStackParamList = {
 
 type MainTabParamList = {
   Home: undefined;
+  Map: undefined;
   Report: undefined;
 };
 
@@ -43,14 +45,19 @@ const Tab = createBottomTabNavigator<MainTabParamList>();
 function MainTabs() {
   return (
     <Tab.Navigator>
-      <Tab.Screen 
-        name="Home" 
-        component={HomeScreen} 
+      <Tab.Screen
+        name="Home"
+        component={HomeScreen}
         options={{ title: 'Mis Reportes', tabBarIcon: ({ color }) => <Ionicons name="home" color={color} size={20} /> }}
       />
-      <Tab.Screen 
-        name="Report" 
-        component={ReportScreen} 
+      <Tab.Screen
+        name="Map"
+        component={MapScreen}
+        options={{ title: 'Mapa', tabBarIcon: ({ color }) => <Ionicons name="map" color={color} size={20} /> }}
+      />
+      <Tab.Screen
+        name="Report"
+        component={ReportScreen}
         options={{ title: 'Crear Reporte', tabBarIcon: ({ color }) => <Ionicons name="add-circle" color={color} size={24} /> }}
       />
     </Tab.Navigator>
