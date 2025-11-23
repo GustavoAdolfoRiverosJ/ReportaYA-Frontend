@@ -8,7 +8,7 @@ import { useAuth } from '../../context/AuthContext';
 export interface ReportFormData {
   tipo: '' | 'infraestructura' | 'residuos' | 'otros';
   descripcion: string;
-  ubicacion: { lat: number; lng: number } | null;
+  ubicacion: { lat: number; lng: number; direccion?: string } | null;
   imagen: string | null;
 }
 
@@ -47,15 +47,23 @@ export const useReportController = () => {
         otros: 'Otro problema',
       };
 
+      // Mapear el tipo local al enum del backend
+      const tipoProblemaMap = {
+        infraestructura: 'INFRAESTRUCTURA',
+        residuos: 'RESIDUOS',
+        otros: 'OTROS',
+      } as const;
+
       // Construir el objeto de reporte según la API
       const reporteData: CrearReporteRequest = {
         titulo: tituloMap[form.tipo] || 'Reporte sin especificar',
         descripcion: form.descripcion,
         cuentaId: usuario.id, // Usar ID del usuario autenticado
+        tipoProblema: tipoProblemaMap[form.tipo] as any, // Enviar el tipo de problema
         ubicacion: {
           latitud: form.ubicacion.lat,
           longitud: form.ubicacion.lng,
-          direccion: undefined, // Opcional, se puede omitir
+          direccion: form.ubicacion.direccion, // Incluir dirección si existe
         },
         // prioridad: 'MEDIA', // Opcional - El backend asigna MEDIA por defecto
       };

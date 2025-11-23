@@ -2,6 +2,7 @@
 import React from 'react';
 import { Modal, View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import LocationThumbnail from './LocationThumbnail';
 import { useNavigation } from '@react-navigation/native';
 import { styles } from './ReportDetailModal.styles';
 import { ReporteResponse } from '../types';
@@ -62,8 +63,8 @@ const ReportDetailModal: React.FC<ReportDetailModalProps> = ({ visible, reporte,
     }
   };
 
-  const ubicacionTexto = reporte.ubicacion?.direccion 
-    || (reporte.ubicacion?.latitud && reporte.ubicacion?.longitud 
+  const ubicacionTexto = reporte.ubicacion?.direccion
+    || (reporte.ubicacion?.latitud && reporte.ubicacion?.longitud
       ? `${reporte.ubicacion.latitud.toFixed(6)}, ${reporte.ubicacion.longitud.toFixed(6)}`
       : 'Sin ubicación');
 
@@ -105,6 +106,13 @@ const ReportDetailModal: React.FC<ReportDetailModalProps> = ({ visible, reporte,
                   <Text style={styles.priorityBadgeText}>{getPrioridadTexto(reporte.prioridad)}</Text>
                 </View>
               </View>
+
+              {reporte.tipoProblema && (
+                <View style={styles.detailRow}>
+                  <Text style={styles.detailLabel}>Tipo:</Text>
+                  <Text style={styles.detailValue}>{reporte.tipoProblema}</Text>
+                </View>
+              )}
             </View>
 
             <View style={styles.section}>
@@ -114,10 +122,14 @@ const ReportDetailModal: React.FC<ReportDetailModalProps> = ({ visible, reporte,
 
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Ubicación</Text>
-              <View style={styles.locationContainer}>
-                <Ionicons name="location" size={20} color="#a27eff" />
-                <Text style={styles.locationText}>{ubicacionTexto}</Text>
-              </View>
+              <LocationThumbnail
+                ubicacion={{
+                  lat: reporte.ubicacion.latitud,
+                  lng: reporte.ubicacion.longitud,
+                  direccion: reporte.ubicacion.direccion
+                }}
+                editable={false}
+              />
             </View>
 
             <View style={styles.section}>
@@ -128,7 +140,7 @@ const ReportDetailModal: React.FC<ReportDetailModalProps> = ({ visible, reporte,
               </View>
             </View>
 
-            <TouchableOpacity 
+            <TouchableOpacity
               style={{
                 backgroundColor: '#a27eff',
                 padding: 12,
