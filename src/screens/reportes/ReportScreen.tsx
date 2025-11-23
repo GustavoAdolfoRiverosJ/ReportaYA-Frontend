@@ -218,16 +218,37 @@ const ReportScreen = () => {
           </View>
 
           <Text style={styles.label}>Ubicación en el Mapa:</Text>
-          <View style={styles.locationContainer}>
-            <TouchableOpacity style={styles.locationButton} onPress={requestLocationPermission}>
-              <Text style={styles.locationButtonText}>Obtener Ubicación</Text>
+          {!form.ubicacion ? (
+            <View style={styles.locationContainer}>
+              <TouchableOpacity style={styles.locationButton} onPress={requestLocationPermission}>
+                <Text style={styles.locationButtonText}>Obtener Ubicación</Text>
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <TouchableOpacity
+              style={styles.mapThumbnailContainer}
+              onPress={requestLocationPermission}
+              activeOpacity={0.7}
+            >
+              <View style={styles.mapThumbnail}>
+                <View style={styles.mapPlaceholder}>
+                  <Text style={styles.mapIcon}>🗺️</Text>
+                  <View style={styles.markerOverlay}>
+                    <Text style={styles.markerIcon}>📍</Text>
+                  </View>
+                </View>
+                <View style={styles.locationInfo}>
+                  <Text style={styles.locationLabel}>
+                    {form.ubicacion.direccion || 'Ubicación seleccionada'}
+                  </Text>
+                  <Text style={styles.coordinatesSmall}>
+                    {form.ubicacion.lat.toFixed(5)}, {form.ubicacion.lng.toFixed(5)}
+                  </Text>
+                </View>
+              </View>
+              <Text style={styles.editLocationText}>Toca para cambiar ubicación</Text>
             </TouchableOpacity>
-            {form.ubicacion && (
-              <Text style={styles.locationText}>
-                Lat: {form.ubicacion.lat.toFixed(5)}, Lng: {form.ubicacion.lng.toFixed(5)}
-              </Text>
-            )}
-          </View>
+          )}
 
           <Text style={styles.label}>Descripción detallada:</Text>
           <TextInput

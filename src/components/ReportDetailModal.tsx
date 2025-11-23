@@ -2,6 +2,7 @@
 import React from 'react';
 import { Modal, View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import LocationThumbnail from './LocationThumbnail';
 import { useNavigation } from '@react-navigation/native';
 import { styles } from './ReportDetailModal.styles';
 import { ReporteResponse } from '../types';
@@ -121,21 +122,14 @@ const ReportDetailModal: React.FC<ReportDetailModalProps> = ({ visible, reporte,
 
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Ubicación</Text>
-              <View style={styles.locationContainer}>
-                <Ionicons name="location" size={20} color="#a27eff" />
-                <View style={{ flex: 1, marginLeft: 10 }}>
-                  {reporte.ubicacion.direccion ? (
-                    <>
-                      <Text style={styles.locationText}>{reporte.ubicacion.direccion}</Text>
-                      <Text style={styles.coordinatesText}>
-                        {reporte.ubicacion.latitud.toFixed(6)}, {reporte.ubicacion.longitud.toFixed(6)}
-                      </Text>
-                    </>
-                  ) : (
-                    <Text style={styles.locationText}>{ubicacionTexto}</Text>
-                  )}
-                </View>
-              </View>
+              <LocationThumbnail
+                ubicacion={{
+                  lat: reporte.ubicacion.latitud,
+                  lng: reporte.ubicacion.longitud,
+                  direccion: reporte.ubicacion.direccion
+                }}
+                editable={false}
+              />
             </View>
 
             <View style={styles.section}>
