@@ -3,20 +3,29 @@ import axios from 'axios';
 
 interface NominatimResponse {
     address?: {
+        road?: string;
         suburb?: string;
+        neighbourhood?: string;
+        quarter?: string;
         city_district?: string;
         city?: string;
+        town?: string;
+        village?: string;
         municipality?: string;
         county?: string;
         state?: string;
         country?: string;
         country_code?: string;
+        amenity?: string;
+        building?: string;
     };
     display_name?: string;
 }
 
 export interface DireccionCompleta {
+    calle?: string | null;
     distrito?: string;
+    ciudad?: string;
     departamento?: string;
     pais?: string;
     direccionCompleta?: string;
@@ -27,9 +36,7 @@ class ServicioGeocoding {
 
     /**
      * Obtiene la dirección legible a partir de coordenadas
-     * @param latitud - Latitud
-     * @param longitud - Longitud
-     * @returns Promise con la dirección parseada
+     * Retorna campos separados para guardar en BD
      */
     async obtenerDireccion(latitud: number, longitud: number): Promise<DireccionCompleta> {
         try {
@@ -39,12 +46,12 @@ class ServicioGeocoding {
                     lon: longitud,
                     format: 'json',
                     addressdetails: 1,
-                    // User-Agent es requerido por Nominatim
+                    'accept-language': 'es',
                 },
                 headers: {
                     'User-Agent': 'ReportaYA/1.0',
                 },
-                timeout: 5000, // 5 segundos timeout
+                timeout: 5000,
             });
 
             const address = response.data.address;
@@ -52,20 +59,47 @@ class ServicioGeocoding {
                 throw new Error('No se pudo obtener la dirección');
             }
 
-            // Distrito: puede ser suburb, city_district, municipality
-            const distrito = address.suburb || address.city_district || address.municipality || address.city || 'Desconocido';
+            // CALLE: road, amenity, building
+            const calle = address.road || address.amenity || address.building || null;
 
-            // Departamento: generalmente es state o county
-            const departamento = address.state || address.county || 'Desconocido';
+            // DISTRITO: Priorizar suburb, neighbourhood, quarter, etc.
+            const distrito =
+                address.suburb ||
+                address.neighbourhood ||
+                address.quarter ||
+                address.city_district ||
+                address.municipality ||
+                'Desconocido';
 
-            // País
-            const pais = address.country || 'Desconocido';
+            // CIUDAD
+            const ciudad = address.city || address.town || address.village || 'Lima';
 
-            // Dirección completa para guardar en BD
-            const direccionCompleta = response.data.display_name || `${distrito}, ${departamento}, ${pais}`;
+            // DEPARTAMENTO
+            const departamento = address.state || address.county || 'Lima';
+
+            // PAÍS
+            const pais = address.country || 'Perú';
+
+            // Construir dirección completa legible (mostrar en UI)
+            const partes: string[] = [];
+
+            if (calle) {
+                partes.push(calle);
+            }
+
+            // IMPORTANTE: Agregar distrito de manera prominente
+            partes.push(distrito);
+
+            if (ciudad && ciudad !== distrito) {
+                partes.push(ciudad);
+            }
+
+            const direccionCompleta = partes.join(', ');
 
             return {
+                calle,
                 distrito,
+                ciudad,
                 departamento,
                 pais,
                 direccionCompleta,
@@ -73,9 +107,10 @@ class ServicioGeocoding {
         } catch (error: any) {
             console.error('Error al obtener dirección:', error);
 
-            // Fallback en caso de error
             return {
+                calle: null,
                 distrito: 'No disponible',
+                ciudad: 'No disponible',
                 departamento: 'No disponible',
                 pais: 'No disponible',
                 direccionCompleta: `${latitud}, ${longitud}`,
@@ -85,24 +120,26 @@ class ServicioGeocoding {
 
     /**
      * Parsear una dirección existente (si ya está en la BD)
-     * @param direccion - Dirección completa
-     * @returns Dirección parseada
      */
     parsearDireccion(direccion?: string): DireccionCompleta {
         if (!direccion || direccion.includes(',') === false) {
             return {
+                calle: null,
                 distrito: 'No disponible',
+                ciudad: 'No disponible',
                 departamento: 'No disponible',
                 pais: 'No disponible',
                 direccionCompleta: direccion || 'No disponible',
             };
         }
 
-        // Intentar parsear formato "Distrito, Departamento, País"
+        // Intentar parsear formato "Calle, Distrito, Ciudad"
         const partes = direccion.split(',').map(p => p.trim());
 
         return {
-            distrito: partes[0] || 'No disponible',
+            calle: partes[0] || null,
+            distrito: partes[1] || partes[0] || 'No disponible',
+            ciudad: partes[2] || 'No disponible',
             departamento: partes[partes.length - 2] || 'No disponible',
             pais: partes[partes.length - 1] || 'No disponible',
             direccionCompleta: direccion,

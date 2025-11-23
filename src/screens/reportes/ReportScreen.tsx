@@ -101,6 +101,13 @@ const ReportScreen = () => {
         ubicacion: {
           lat: location.lat,
           lng: location.lng,
+          // Campos separados para mejor consulta en backend
+          calle: direccion.calle,
+          distrito: direccion.distrito,
+          ciudad: direccion.ciudad,
+          departamento: direccion.departamento,
+          pais: direccion.pais,
+          // Dirección completa para mostrar en UI
           direccion: direccion.direccionCompleta
         }
       }));
